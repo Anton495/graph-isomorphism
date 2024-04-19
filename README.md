@@ -1,4 +1,4 @@
-#Graph isomorphism
+# Graph isomorphism
 
 This package have two basic functions:
 
@@ -10,7 +10,7 @@ Runtime depends polynomially on the number of vertices. In the first case the co
 
 Multigraphs and directed graphs are not supported.
 
-#Usage
+# Usage
 
 Run examples.py for usage in an interactive session.
 
@@ -43,8 +43,8 @@ True
 >>>
 ```
 
-#Basic concepts
-##Virtual neural network
+# Basic concepts
+## Virtual neural network
 
 We illustrate the main idea of this design with the following example. 
 Let's build a virtual neural network for grid 3x3. 
@@ -77,7 +77,7 @@ In general, the complexity will not exceed $O(n^3)$.
 
 ![Virtual neural network](./figure/Network.png)
 
-##Virtual neural network derivative
+## Virtual neural network derivative
 
 Derivative of Virtual neural network is called network that is constructed as follows:
 1. Sets are sought between two adjacent layers, which consist of the number of connections that each neuron forms.
@@ -99,7 +99,7 @@ As an example, consider two partially specified virtual neural networks and its 
 
 ![Virtual neural network derivative](./figure/Derivative.png)
 
-##Virtual neural network with reversed
+## Virtual neural network with reversed
 
 The construction of a network of this type is carried out on one side. This is done according to two rules:
 1. Before new connections are formed, a reverse network is built for each neuron in each layer.
