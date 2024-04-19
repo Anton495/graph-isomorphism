@@ -108,7 +108,7 @@ The construction of a network of this type is carried out on one side. This is d
 2. The formation of a new connection is prohibited if the new neuron is contained in the reverse network.
 
 This approach allows you to significantly reduce the size of the network
-($2\sqrt(n)-1$ layers in the best case and $n$ layers in the worst case where $n$ is the number of graph vertices).
+($2\sqrt{n}-1$ layers in the best case and $n$ layers in the worst case where $n$ is the number of graph vertices).
 
 As an example, let's build such a network for a cube.
 
