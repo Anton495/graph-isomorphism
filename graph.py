@@ -248,4 +248,3 @@ class Graph:
                 isom[k] = (isom[k][0],isom[k][1])
                 
         return isom
-
