@@ -10,6 +10,8 @@ Runtime depends polynomially on the number of vertices. In the first case the co
 
 Multigraphs and directed graphs are not supported.
 
+The module has been tested to work on Python 3.11.5.
+
 # Usage
 
 Run examples.py for usage in an interactive session.
