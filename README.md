@@ -8,7 +8,7 @@ This package have two basic functions:
 
 Runtime depends polynomially on the number of vertices. In the first case the complexity of the algorithm is $O(n^4)$, in the second case it is $O(n^5)$.
 
-Multigraphs and directed graphs are not supported.
+Multigraphs are not supported.
 
 The module has been tested to work on Python 3.11.5.
 
