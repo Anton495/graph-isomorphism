@@ -125,3 +125,11 @@ As an example, let's build such a network for a cube.
 ```
 
 ![Virtual neural network with reversed](./figure/Network_rev.png)
+
+# References
+
+[1] Ronald C. Read, Derek G. Corneil, The Graph Isomorphism Disease, J. Graph Theory, vol. 1, 1977, pp. 339-363.
+[2] Johannes Köbler, Uwe Schöning, Jacobo Torán, The Graph Isomorphism Problem: Its Structural Complexity, Springer Science+Business Media, LLC, 1993, 167 p.
+[3] László Babai, Graph Isomorphism in Quasipolynomial Time, Preliminary verson, 2015, 84 p., arXiv: 1512.03547
+[4] László Babai, Graph Isomorphism in Quasipolynomial Time, Version 2.5, 2018, 109 p.,\\ https://people.cs.uchicago.edu/~laci/quasi25.pdf
+[5] Steven S. Skiena, The Algorithm Design Manual, Springer, 3nd ed, 2020, 800 p.
