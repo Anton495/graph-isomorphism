@@ -47,6 +47,9 @@ class Graph:
 
         part_network = []
         neurons = [start_vertex]
+
+        if start_vertex in graph[start_vertex]:
+            start_vertex = None
         
         for k in range(N):
             neurons = [m for m in neurons if m in graph]
