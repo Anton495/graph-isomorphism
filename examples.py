@@ -110,6 +110,8 @@ def example6():
 
 def example7():
 
+    '''directed graphs'''
+
     g1 = {'a':['d','f'],
           'd':['c'],
           'f':['e','g'],
@@ -125,3 +127,16 @@ def example7():
           'o':['n','p']}
     
     return Graph(g1,g2)
+
+def example8():
+    
+    '''multigraph, lack of symmetry'''
+    
+    g = {'a':['b','b','e','f'],
+         'b':['a','a','c','f','f','f'],
+         'c':['c','b','d','f'],
+         'd':['d','c','e','f','f'],
+         'e':['e','a','d','f','f'],
+         'f':['a','b','b','b','c','d','d','e','e']}
+    
+    return Graph(g)
