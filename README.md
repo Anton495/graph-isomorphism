@@ -103,7 +103,7 @@ As an example, consider two partially specified virtual neural networks and its 
 
 ## Virtual neural network with reversed
 
-The construction of a network of this type is carried out on one side. This is done according to two rules:
+The construction of a network of this type is carried out on one side and takes place only for undirected graphs. This is done according to two rules:
 1. Before new connections are formed, a reverse network is built for each neuron in each layer.
 2. The formation of a new connection is prohibited if the new neuron is contained in the reverse network.
 
