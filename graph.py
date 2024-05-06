@@ -174,7 +174,7 @@ class Graph:
    
         return network_der
 
-    def test_isomophism(self, rev=True):
+    def test_isomophism(self, rev=False):
 
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
@@ -202,7 +202,7 @@ class Graph:
     
         return False
 
-    def find_isomophism(self, rev=True):
+    def find_isomophism(self, rev=False):
     
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
