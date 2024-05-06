@@ -123,6 +123,7 @@ class Graph:
 
     @staticmethod
     def network_with_reversed(graph, start_vertex):
+        '''This function does not support directed graphs'''
         
         network_rev = [{start_vertex : graph[start_vertex]}]
 
@@ -174,8 +175,6 @@ class Graph:
         return network_der
 
     def test_isomophism(self, rev=True):
-        '''Are two graphs isomorphic?
-            This works for any two graphs'''
 
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
@@ -204,8 +203,6 @@ class Graph:
         return False
 
     def find_isomophism(self, rev=True):
-        '''Finds an isomorph substitution
-            (except for symmetric graphs)'''
     
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
