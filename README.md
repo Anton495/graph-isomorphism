@@ -32,9 +32,9 @@ False
  'c': ['a','b','d','e'],
  'd': ['b','c','e'],
  'e': ['b','c','d']}
->>> example3().test_isomophism()
+>>> example3().test_isomophism(rev=True)
 True
->>> example3().find_isomophism()
+>>> example3().find_isomophism(rev=True)
 [('1', 'a'),
  ('2', {'b', 'c'}),
  ('3', {'b', 'c'}),
