@@ -82,7 +82,7 @@ In general, the complexity will not exceed $O(n^3)$.
 ## Virtual neural network derivative
 
 Derivative of Virtual neural network is called network that is constructed as follows:
-1. Lists are compiled between each pair of adjacent layers, which consist of the number of connections that each neuron forms.
+1. Lists are compiled for each pair of adjacent layers, which consist of the number of connections that each neuron forms.
 2. It is determined how many connections each neuron generates in the next layer.
 
 Two graphs are isomorphic if and only if the derivatives of their virtual neural networks constructed from the same vertex coincide.
