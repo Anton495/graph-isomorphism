@@ -84,7 +84,7 @@ In general, the complexity will not exceed $O(n^3)$.
 Derivative of virtual neural network is called network that is constructed as follows:
 1. The list is compiled for each layer, which consists of the number of connections formed by each neuron. Thus, the sequence of lists consisting of groups orders is obtained.
    
-2. Each group order from the lists is associated with the list of groups orders that it generates. For example, writing $(2,[1,2])$ means that a group of order 2 generates two groups of order 1 and 2.
+2. Each group order from the lists is associated with the list of groups orders that it generates. For example, writing $(2,[1,2])$ means that the group of order 2 generates two groups of order 1 and 2.
 
 Two graphs are isomorphic if and only if the derivatives of their virtual neural networks constructed from the same vertex coincide.
 
