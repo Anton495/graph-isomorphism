@@ -82,7 +82,7 @@ In general, the complexity will not exceed $O(n^3)$.
 ## Virtual neural network derivative
 
 Derivative of virtual neural network is called network that is constructed as follows:
-1. Lists are compiled for each pair of adjacent layers, which consist of the number of connections that each neuron forms. Thus, a sequence of lists consisting of groups orders is obtained.
+1. The list is compiled for each layer, which consists of the number of connections formed by each neuron. Thus, a sequence of lists consisting of groups orders is obtained.
    
 2. Each group order from the lists is associated with the list of groups orders that it generates. For example, writing $(2,[1,2])$ would mean that a group of order 2 generates two groups of order 1 and 2.
 
