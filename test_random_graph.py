@@ -17,7 +17,6 @@ def _create_random_graph(n, p):
     return {v: n for v, n in graph.items()}
 
 
-
 def _get_rename_from_isomorphism(iso):
     rename = {}
     seen = set()
@@ -41,6 +40,20 @@ def _permute_graph(graph):
     return _rename_vertices(graph, rename)
 
 
+def _check_equal(g1, g2):
+    for v, n in g1.items():
+        if v not in g2:
+            return False
+        if sorted(n) != sorted(g2[v]):
+            return False
+
+    for v, n in g2.items():
+        if v not in g1:
+            return False
+
+    return True
+
+
 def test_isomorphic_random_graphs(n, p):
     graph = _create_random_graph(n, p)
     permuted = _permute_graph(graph)
@@ -49,7 +62,7 @@ def test_isomorphic_random_graphs(n, p):
     if iso is False:
         raise ValueError("test_isomorphic_random_graphs failed: not found isomorphism")
     rename = _get_rename_from_isomorphism(iso)
-    if _rename_vertices(graph, rename) != permuted:
+    if not _check_equal(_rename_vertices(graph, rename), permuted):
         raise ValueError("test_isomorphic_random_graphs failed: incorrect isomorphism")
 
 
