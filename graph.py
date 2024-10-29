@@ -45,7 +45,7 @@ class Graph:
         if N == None: 
             N = len(graph)-1
 
-        part_network = []
+        network = []
         neurons = [start_vertex]
 
         if start_vertex in graph[start_vertex]:
@@ -53,12 +53,12 @@ class Graph:
         
         for k in range(N):
             neurons = [m for m in neurons if m in graph]
-            part_network.append({key:[k for k in graph[key] if k != start_vertex and k != end_vertex] for key in neurons})
+            network.append({key:[k for k in graph[key] if k != start_vertex and k != end_vertex] for key in neurons})
         
-            neurons = list(part_network[k].values())
+            neurons = list(network[k].values())
             neurons = sum(neurons, [])
         
-        return part_network
+        return network
     
     @staticmethod
     def twoway_network(graph, first_vertex, end_vertex=None):
