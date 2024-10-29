@@ -59,7 +59,7 @@ For the grid we will have the complexity $O(n^{2.1})$.
 In general, the complexity will not exceed $O(n^3)$.
 
 ```python
->>> example6().virtual_network(example6().graph1, (0,0), (2,0))
+>>> example6().twoway_network(example6().graph1, (0,0), (2,0))
 [{(0, 0): [(1, 0), (0, 1)]},
  {(1, 0): [(1, 1)], (0, 1): [(1, 1), (0, 2)]},
  {(1, 1): [(2, 1), (0, 1), (1, 2), (1, 0)], (0, 2): [(1, 2), (0, 1)]},
