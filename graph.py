@@ -40,7 +40,7 @@ class Graph:
         return graph2
         
     @staticmethod
-    def partical_network(graph, start_vertex, end_vertex=None, N=None):
+    def oneway_network(graph, start_vertex, end_vertex=None, N=None):
     
         if N == None: 
             N = len(graph)-1
@@ -66,19 +66,19 @@ class Graph:
         n = len(graph) if end_vertex==None else len(graph)-1
         N = n//2 if n//2 == n/2 else n//2+1
     
-        virtual_network_1 = Graph.partical_network(graph, first_vertex, end_vertex, N)
+        virtual_network_1 = Graph.oneway_network(graph, first_vertex, end_vertex, N)
     
         if N//2 == N/2:
             if end_vertex==None:        
                 network_2 = list(reversed(virtual_network_1))
             else:
-                network_2 = Graph.partical_network(graph, end_vertex, first_vertex, N)
+                network_2 = Graph.oneway_network(graph, end_vertex, first_vertex, N)
                 network_2 = list(reversed(network_2))
         else:
             if end_vertex==None:  
                 network_2 = list(reversed(virtual_network_1[:-1]))
             else:
-                network_2 = Graph.partical_network(graph, end_vertex, first_vertex, N-1)
+                network_2 = Graph.oneway_network(graph, end_vertex, first_vertex, N-1)
                 network_2 = list(reversed(network_2))
     
         virtual_network_2 = []
@@ -181,7 +181,7 @@ class Graph:
         if rev == True:
             network_1 = Graph.network_with_reversed(self.graph1, vertices1[0])
         else:
-            network_1 = Graph.partical_network(self.graph1, vertices1[0])
+            network_1 = Graph.oneway_network(self.graph1, vertices1[0])
         
         der_network_1 = Graph.network_derivative(network_1)
         
@@ -192,7 +192,7 @@ class Graph:
                 if rev == True:
                     network_2 = Graph.network_with_reversed(self.graph2, v2)
                 else:
-                    network_2 = Graph.partical_network(self.graph2, v2)
+                    network_2 = Graph.oneway_network(self.graph2, v2)
                 
                 der_network_2 = Graph.network_derivative(network_2)
         
@@ -212,7 +212,7 @@ class Graph:
             if rev == True:
                 network_1 = Graph.network_with_reversed(self.graph1, v1)
             else:
-                network_1 = Graph.partical_network(self.graph1, v1)
+                network_1 = Graph.oneway_network(self.graph1, v1)
                 
             der_network_1 = Graph.network_derivative(network_1)
     
@@ -222,7 +222,7 @@ class Graph:
                     if rev == True:
                         network_2 = Graph.network_with_reversed(self.graph2, v2)
                     else:
-                        network_2 = Graph.partical_network(self.graph2, v2)
+                        network_2 = Graph.oneway_network(self.graph2, v2)
                         
                     der_network_2 = Graph.network_derivative(network_2)
         
