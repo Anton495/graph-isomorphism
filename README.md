@@ -48,8 +48,10 @@ True
 # Basic concepts
 ## Virtual neural network
 
+Virtual neural network is a network focused on working with graphs. In networks of this type, the vertices of the graph are called neurons and the edges of the graph are called synaptic connections. This type of network can be one-way or two-way.
+
 We illustrate the main idea of this design with the following example. 
-Let's build a virtual neural network for grid 3x3. 
+Let's build two-way virtual neural network for grid 3x3. 
 We choose (0,0) and (2,0) as the initial and final coordinates, respectively.
 Such the network contains information about all possible paths from point (0,0) to point (2,0) in eight unit steps.
 The construction is carried out on both sides, which eliminates the formation of dead-end paths.
