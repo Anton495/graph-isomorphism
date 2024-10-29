@@ -22,21 +22,21 @@ Run examples.py for usage in an interactive session.
 >>> example = Graph(g1,g2)
 >>> example.test_isomophism()
 False
->>> example3().graph1
+>>> example1().graph1
 {'1': ['2', '3'],
  '2': ['1', '3', '4', '5'],
  '3': ['1', '2', '4', '5'],
  '4': ['2', '3', '5'],
  '5': ['2', '3', '4']}
->>> example3().graph2
+>>> example1().graph2
 {'a': ['b','c'],
  'b': ['a','c','d','e'],
  'c': ['a','b','d','e'],
  'd': ['b','c','e'],
  'e': ['b','c','d']}
->>> example3().test_isomophism(rev=True)
+>>> example1().test_isomophism()
 True
->>> example3().find_isomophism(rev=True)
+>>> example1().find_isomophism()
 [('1', 'a'),
  ('2', {'b', 'c'}),
  ('3', {'b', 'c'}),
@@ -109,7 +109,7 @@ The construction of a network of this type is carried out on one side and takes 
 2. The formation of a new connection is prohibited if the new neuron is contained in the reverse network.
 
 This approach allows you to significantly reduce the size of the network
-($2\sqrt{n}-1$ layers in the best case and $n$ layers in the worst case where $n$ is the number of graph vertices).
+($n$ layers in the worst case where $n$ is the number of graph vertices).
 
 As an example, let's build such a network for a cube.
 
