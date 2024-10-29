@@ -171,7 +171,6 @@ class Graph:
                     
             network_der.append(sorted(layer))
         
-   
         return network_der
 
     def test_isomophism(self, rev=False):
@@ -180,22 +179,22 @@ class Graph:
         vertices2 = list(self.graph2.keys())
         
         if rev == True:
-            network_rev_1 = Graph.network_with_reversed(self.graph1, vertices1[0])
+            network_1 = Graph.network_with_reversed(self.graph1, vertices1[0])
         else:
-            network_rev_1 = Graph.partical_network(self.graph1, vertices1[0])
+            network_1 = Graph.partical_network(self.graph1, vertices1[0])
         
-        der_network_1 = Graph.network_derivative(network_rev_1)
+        der_network_1 = Graph.network_derivative(network_1)
         
         N = len(self.graph1[vertices1[0]])
         for v2 in vertices2:
             if N == len(self.graph2[v2]):
                 
                 if rev == True:
-                    network_rev_2 = Graph.network_with_reversed(self.graph2, v2)
+                    network_2 = Graph.network_with_reversed(self.graph2, v2)
                 else:
-                    network_rev_2 = Graph.partical_network(self.graph2, v2)
+                    network_2 = Graph.partical_network(self.graph2, v2)
                 
-                der_network_2 = Graph.network_derivative(network_rev_2)
+                der_network_2 = Graph.network_derivative(network_2)
         
                 if der_network_1==der_network_2:
                     return True
@@ -211,21 +210,21 @@ class Graph:
         for v1 in vertices1:
             
             if rev == True:
-                network_rev_1 = Graph.network_with_reversed(self.graph1, v1)
+                network_1 = Graph.network_with_reversed(self.graph1, v1)
             else:
-                network_rev_1 = Graph.partical_network(self.graph1, v1)
+                network_1 = Graph.partical_network(self.graph1, v1)
                 
-            der_network_1 = Graph.network_derivative(network_rev_1)
+            der_network_1 = Graph.network_derivative(network_1)
     
             for v2 in vertices2:
                 if len(self.graph1[v1]) == len(self.graph2[v2]):
                     
                     if rev == True:
-                        network_rev_2 = Graph.network_with_reversed(self.graph2, v2)
+                        network_2 = Graph.network_with_reversed(self.graph2, v2)
                     else:
-                        network_rev_2 = Graph.partical_network(self.graph2, v2)
+                        network_2 = Graph.partical_network(self.graph2, v2)
                         
-                    der_network_2 = Graph.network_derivative(network_rev_2)
+                    der_network_2 = Graph.network_derivative(network_2)
         
                     if der_network_1==der_network_2:
                         
