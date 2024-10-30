@@ -90,7 +90,7 @@ Derivative of virtual neural network is called network that is constructed as fo
 
 Two graphs are isomorphic if and only if the derivatives of their virtual neural networks constructed from the same vertex coincide.
 
-As an example, consider two partical virtual neural networks and its derivative.
+As an example, consider two one-way virtual neural networks and its derivative.
 
 ```python
 >>> network1 = example7().partical_network(example7().graph1,'a',None,3)
