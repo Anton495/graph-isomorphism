@@ -45,6 +45,8 @@ True
 >>>
 ```
 
+# Symmetry in graphs and automorfism
+
 # Basic concepts
 ## Virtual neural network
 
