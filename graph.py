@@ -24,6 +24,8 @@ SOFTWARE.
 
 '''
 
+import random
+
 class Graph:
     
     def __init__(self, graph1, graph2 = None):
@@ -248,3 +250,29 @@ class Graph:
                 isom[k] = (isom[k][0],isom[k][1])
                 
         return isom
+
+    def find_arbitary_automorfism(self,iso):
+
+        G = tuple(k[0] for k in iso)
+        A = [None]*len(G)
+        A_test = [0]*len(G)
+
+        A[0] = random.choice(list(iso[0][1]))
+        A_test[0] = 1
+    
+        for m in range(len(A)):    
+            i = A_test.index(1)
+            v1 = self.graph1[G[i]]
+            v2 = self.graph2[A[i]]
+        
+            for k1 in range(len(v1)):
+                ind = G.index(v1[k1])
+            
+                for k2 in range(len(v2)):
+                    if A[ind] == None and v2[k2] not in A:
+                        A[ind] = v2[k2]
+                        A_test[ind] = 1
+                
+            A_test[i] = 0
+        
+        return [G,tuple(A)]
