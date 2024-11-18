@@ -52,6 +52,8 @@ Symmetry in graphs can be divided into three types:
 2. Double symmetry. The graph has two axes of symmetry. The order of the automorphism group is $\ge4$.
 3. Multiple symmetry. All vertices of the graph lie on the axes of symmetry. The order of the automorphism group is $\ge2*n$, where $n$ is the number of vertices of the graph.
 
+![Symmetry types](./figure/Symmetry_types.png)
+
 
 # Basic concepts
 ## Virtual neural network
