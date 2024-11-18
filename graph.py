@@ -203,7 +203,7 @@ class Graph:
     
         return False
 
-    def find_isomophism(self, rev=False):
+    def find_orbits(self, rev=False):
     
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
