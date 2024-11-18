@@ -24,7 +24,7 @@ SOFTWARE.
 
 '''
 
-import random
+from random import choice
 
 class Graph:
     
@@ -257,7 +257,7 @@ class Graph:
         A = [None]*len(G)
         A_test = [0]*len(G)
 
-        A[0] = random.choice(list(iso[0][1]))
+        A[0] = choice(list(iso[0][1]))
         A_test[0] = 1
     
         for m in range(len(A)):    
