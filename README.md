@@ -4,7 +4,7 @@ This package have two basic functions:
 
 1. The `test_isomophism()` function can be used to test graphs for isomorphism. Outputs `True` or `False`.
 
-2. The `find_isomophism()` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
+2. The `find_orbits()` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
 
 Runtime depends polynomially on the number of vertices. In the first case the complexity of the algorithm is $O(n^4)$, in the second case it is $O(n^5)$.
 
@@ -36,7 +36,7 @@ False
  'e': ['b','c','d']}
 >>> example1().test_isomophism()
 True
->>> example1().find_isomophism()
+>>> example1().find_orbits()
 [('1', 'a'),
  ('2', {'b', 'c'}),
  ('3', {'b', 'c'}),
@@ -54,6 +54,15 @@ Symmetry in graphs can be divided into three types:
 
 ![Symmetry types](./figure/Symmetry_types.png)
 
+The `find_arbitary_automorfism()` function can be used to find arbitary automorphism substitution for any symmetry type.
+
+```python
+>>> iso = example2().find_orbits()
+>>> example2().find_arbitary_automorfism(iso)
+[('a', 'b', 'c', 'd', 'e', 'f'),
+ ('f~', 'd~', 'e~', 'b~', 'c~', 'a~')]
+>>>
+```
 
 # Basic concepts
 ## Virtual neural network
