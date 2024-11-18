@@ -48,7 +48,7 @@ True
 # Symmetry in graphs and automorfism
 
 Symmetry in graphs can be divided into three types:
-1. Simple symmetry. The graph has one axes of symmetry. The order of the automorphism group is greater than or equal to 2.
+1. Simple symmetry. The graph has one axes of symmetry. The order of the automorphism group is $\geqslant2$.
 2. Double symmetry. The graph has two axes of symmetry. The order of the automorphism group is greater than or equal to 4.
 3. Multiple symmetry. All vertices of the graph lie on the axes of symmetry. The order of the automorphism group is greater than or equal to 2*n, where n is the number of vertices of the graph.
 
