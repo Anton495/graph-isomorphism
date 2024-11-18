@@ -279,7 +279,7 @@ class Graph:
                 ind = G.index(v1[k1])
             
                 for k2 in range(len(v2)):
-                    if A[ind] == None and v2[k2] not in A and v2[k2] in iso[ind][1]::
+                    if A[ind] == None and v2[k2] not in A and v2[k2] in iso[ind][1]:
                         A[ind] = v2[k2]
                         A_test[ind] = 1
                 
