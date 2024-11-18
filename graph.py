@@ -257,8 +257,18 @@ class Graph:
         A = [None]*len(G)
         A_test = [0]*len(G)
 
-        A[0] = choice(list(iso[0][1]))
-        A_test[0] = 1
+        r = None
+        for m in range(len(iso)):
+            if len(iso[m][1]) == 2:
+                r = m
+                break
+        
+        if r == None:
+            A[0] = choice(list(iso[0][1]))
+            A_test[0] = 1
+        else:
+            A[r] = choice(list(iso[r][1]))
+            A_test[r] = 1
     
         for m in range(len(A)):    
             i = A_test.index(1)
