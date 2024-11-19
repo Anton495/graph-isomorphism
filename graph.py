@@ -259,7 +259,7 @@ class Graph:
         
         r = None
         for m in range(len(iso)):
-            if len(iso[m][1]) == 2:
+            if type(iso[m][1]) != str or len(list(iso[m][1])) == 2:
                 r = m
                 break
         
@@ -267,15 +267,21 @@ class Graph:
             A[0] = choice(list(iso[0][1]))
             A_test[0] = 1
         else:
-            A[r] = choice(list(iso[r][1]))
-            A_test[r] = 1
+            if type(iso[r][1]) == str:
+                A[r] = iso[0][1]
+                A_test[r] = 1
+            else:
+                A[r] = choice(list(iso[r][1]))
+                A_test[r] = 1
         
-        for m in range(len(A)):    
+        for m in range(len(A)):
             i = A_test.index(1)
             v1 = self.graph1[G[i]]
             v2 = self.graph2[A[i]]
-            shuffle(v1)
-            shuffle(v2)
+            if len(v1) != 1:
+                shuffle(v1)
+            if len(v2) != 1:
+                shuffle(v2)
         
             for k1 in range(len(v1)):
                 ind = G.index(v1[k1])
