@@ -24,7 +24,7 @@ SOFTWARE.
 
 '''
 
-from random import choice
+from random import choice, shuffle
 
 class Graph:
     
@@ -251,12 +251,12 @@ class Graph:
                 
         return isom
 
-    def find_arbitary_automorfism(self,iso):
+    def find_automorfism(self,iso):
 
         G = tuple(k[0] for k in iso)
         A = [None]*len(G)
         A_test = [0]*len(G)
-
+        
         r = None
         for m in range(len(iso)):
             if len(iso[m][1]) == 2:
@@ -269,11 +269,13 @@ class Graph:
         else:
             A[r] = choice(list(iso[r][1]))
             A_test[r] = 1
-    
+        
         for m in range(len(A)):    
             i = A_test.index(1)
             v1 = self.graph1[G[i]]
             v2 = self.graph2[A[i]]
+            shuffle(v1)
+            shuffle(v2)
         
             for k1 in range(len(v1)):
                 ind = G.index(v1[k1])
