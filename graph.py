@@ -278,7 +278,6 @@ class Graph:
             i = A_test.index(1)
             v1 = self.graph1[G[i]]
             v2 = self.graph2[A[i]]
-            
             shuffle(v1)
             shuffle(v2)
         
