@@ -278,10 +278,9 @@ class Graph:
             i = A_test.index(1)
             v1 = self.graph1[G[i]]
             v2 = self.graph2[A[i]]
-            if len(v1) != 1:
-                shuffle(v1)
-            if len(v2) != 1:
-                shuffle(v2)
+            
+            shuffle(v1)
+            shuffle(v2)
         
             for k1 in range(len(v1)):
                 ind = G.index(v1[k1])
