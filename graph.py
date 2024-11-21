@@ -63,7 +63,7 @@ class Graph:
         return network
     
     @staticmethod
-    def twoway_network(graph, first_vertex, end_vertex=None):
+    def twoway_network(graph, first_vertex, end_vertex):
     
         n = len(graph) if end_vertex==None else len(graph)-1
         N = n//2 if n//2 == n/2 else n//2+1
