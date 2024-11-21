@@ -57,8 +57,8 @@ Symmetry in graphs can be divided into three types:
 The `find_automorfism()` function can be used to find arbitary automorphism substitution for any symmetry type.
 
 ```python
->>> iso = example2().find_orbits()
->>> example2().find_automorfism(iso)
+>>> orb = example2().find_orbits()
+>>> example2().find_automorfism(orb)
 [('a', 'b', 'c', 'd', 'e', 'f'),
  ('f~', 'd~', 'e~', 'b~', 'c~', 'a~')]
 >>>
