@@ -125,7 +125,6 @@ class Graph:
 
     @staticmethod
     def network_with_reversed(graph, start_vertex):
-        '''This function does not support directed graphs'''
         
         network_rev = [{start_vertex : graph[start_vertex]}]
 
@@ -175,15 +174,12 @@ class Graph:
         
         return network_der
 
-    def test_isomophism(self, rev=False):
+    def test_isomophism(self):
 
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
         
-        if rev == True:
-            network_1 = Graph.network_with_reversed(self.graph1, vertices1[0])
-        else:
-            network_1 = Graph.oneway_network(self.graph1, vertices1[0])
+        network_1 = Graph.oneway_network(self.graph1, vertices1[0])
         
         der_network_1 = Graph.network_derivative(network_1)
         
@@ -191,10 +187,7 @@ class Graph:
         for v2 in vertices2:
             if N == len(self.graph2[v2]):
                 
-                if rev == True:
-                    network_2 = Graph.network_with_reversed(self.graph2, v2)
-                else:
-                    network_2 = Graph.oneway_network(self.graph2, v2)
+                network_2 = Graph.oneway_network(self.graph2, v2)
                 
                 der_network_2 = Graph.network_derivative(network_2)
         
@@ -203,7 +196,7 @@ class Graph:
     
         return False
 
-    def find_orbits(self, rev=False):
+    def find_orbits(self):
     
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
@@ -211,20 +204,14 @@ class Graph:
         isom = []
         for v1 in vertices1:
             
-            if rev == True:
-                network_1 = Graph.network_with_reversed(self.graph1, v1)
-            else:
-                network_1 = Graph.oneway_network(self.graph1, v1)
+            network_1 = Graph.oneway_network(self.graph1, v1)
                 
             der_network_1 = Graph.network_derivative(network_1)
     
             for v2 in vertices2:
                 if len(self.graph1[v1]) == len(self.graph2[v2]):
                     
-                    if rev == True:
-                        network_2 = Graph.network_with_reversed(self.graph2, v2)
-                    else:
-                        network_2 = Graph.oneway_network(self.graph2, v2)
+                    network_2 = Graph.oneway_network(self.graph2, v2)
                         
                     der_network_2 = Graph.network_derivative(network_2)
         
