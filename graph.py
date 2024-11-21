@@ -63,25 +63,19 @@ class Graph:
         return network
     
     @staticmethod
-    def twoway_network(graph, first_vertex, end_vertex=None):
+    def twoway_network(graph, first_vertex, end_vertex):
     
-        n = len(graph) if end_vertex==None else len(graph)-1
+        n = len(graph)-1
         N = n//2 if n//2 == n/2 else n//2+1
     
         virtual_network_1 = Graph.oneway_network(graph, first_vertex, N, end_vertex)
     
         if N//2 == N/2:
-            if end_vertex==None:        
-                network_2 = list(reversed(virtual_network_1))
-            else:
-                network_2 = Graph.oneway_network(graph, end_vertex, N, first_vertex)
-                network_2 = list(reversed(network_2))
+            network_2 = Graph.oneway_network(graph, end_vertex, N, first_vertex)
         else:
-            if end_vertex==None:  
-                network_2 = list(reversed(virtual_network_1[:-1]))
-            else:
-                network_2 = Graph.oneway_network(graph, end_vertex, N-1, first_vertex)
-                network_2 = list(reversed(network_2))
+            network_2 = Graph.oneway_network(graph, end_vertex, N-1, first_vertex)
+        
+        network_2 = list(reversed(network_2))
     
         virtual_network_2 = []
 
