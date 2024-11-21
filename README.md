@@ -112,10 +112,10 @@ Two graphs are isomorphic if and only if the derivatives of their virtual neural
 As an example, consider two one-way virtual neural networks and its derivative.
 
 ```python
->>> network1 = example7().partical_network(example7().graph1,'a',3)
+>>> network1 = example7().oneway_network(example7().graph1,'a',3)
 >>> example7().network_derivative(network1)
 [[(2, [1, 2])],[(1, [2]), (2, [1, 2])]]
->>> network2 = example7().partical_network(example7().graph2,'i',3)
+>>> network2 = example7().oneway_network(example7().graph2,'i',3)
 >>> example7().network_derivative(network2)
 [[(2, [1, 2])],[(1, [1]), (2, [2, 2])]]
 >>>
