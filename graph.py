@@ -193,7 +193,7 @@ class Graph:
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
     
-        isom = []
+        orb = []
         for v1 in vertices1:
             
             network_1 = Graph.oneway_network(self.graph1, v1)
@@ -207,26 +207,26 @@ class Graph:
         
                     if der_network_1==der_network_2:
                         
-                        row = [row[0] for row in isom]
+                        row = [row[0] for row in orb]
                         if v1 in row:
                             ind = row.index(v1)
-                            if type(isom[ind][1]) != list:
-                                isom[ind][1] = [isom[ind][1]]
+                            if type(orb[ind][1]) != list:
+                                orb[ind][1] = [orb[ind][1]]
                                 
-                            isom[ind][1].append(v2)
+                            orb[ind][1].append(v2)
                         else:
-                            isom.append([v1,v2])  
+                            orb.append([v1,v2])  
             
-            if isom == []:
+            if orb == []:
                 return False
         
-        for k in range(len(isom)):
-            if type(isom[k][1]) == list:
-                isom[k] = (isom[k][0],set(isom[k][1]))
+        for k in range(len(orb)):
+            if type(orb[k][1]) == list:
+                orb[k] = (orb[k][0],set(orb[k][1]))
             else:
-                isom[k] = (isom[k][0],isom[k][1])
+                orb[k] = (orb[k][0],orb[k][1])
                 
-        return isom
+        return orb
 
     def find_automorfism(self,iso):
 
