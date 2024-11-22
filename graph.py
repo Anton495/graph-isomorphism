@@ -54,7 +54,7 @@ class Graph:
             start_vertex = None
         
         for k in range(N):
-            neurons = [m for m in neurons if m in graph]
+            neurons = [neuron for neuron in neurons if neuron in graph]
             network.append({key:[k for k in graph[key] if k != start_vertex and k != end_vertex] for key in neurons})
         
             neurons = list(network[k].values())
