@@ -123,30 +123,8 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ![Virtual neural network derivative](./figure/Derivative.png)
 
-## Virtual neural network with reversed
+## One-way Virtual neural network (fast)
 
-The construction of a network of this type is carried out on one side and takes place only for undirected graphs. This is done according to two rules:
-1. Before new connections are formed, a reverse network is built for each neuron in each layer.
-2. The formation of a new connection is prohibited if the new neuron is contained in the reverse network.
-
-This approach allows you to significantly reduce the size of the network
-($n$ layers in the worst case where $n$ is the number of graph vertices).
-
-As an example, let's build such a network for a cube.
-
-```python
->>> cube().network_with_reversed(cube().graph1,'a')
-[{'a': ['b', 'd', 'e']},
- {'e': ['f', 'h'], 
-  'd': ['c', 'h'],
-  'b': ['c', 'f']},
- {'f': ['g'], 
-  'h': ['g'], 
-  'c': ['g']}]
->>>
-```
-
-![Virtual neural network with reversed](./figure/Network_rev.png)
 
 # References
 
