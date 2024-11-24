@@ -130,7 +130,12 @@ As an example, consider two one-way virtual neural networks and its derivative.
 [{'a': ['b', 'd', 'e']},
  {'b': ['c', 'f'], 'd': ['c', 'h'], 'e': ['f', 'h']},
  {'c': ['g'], 'f': ['g'], 'h': ['g']}]
->>>
+>>> cube().test_isomophism(edge=True)
+True
+>>> iso = cube().find_orbits(edge=True)
+>>> cube().find_automorfism(iso)
+[('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
+('e~', 'f~', 'g~', 'h~', 'a~', 'b~', 'c~', 'd~')]
 ```
 
 ![Edge network](./figure/Edge_network.png)
