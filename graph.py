@@ -90,16 +90,11 @@ class Graph:
         return virtual_network_1 + virtual_network_2
     
     @staticmethod
-    def fast_oneway_network(graph, start_vertex):
+    def edge_oneway_network(graph, start_vertex):
 
         N = len(graph)-1
 
-        edges = []
-        for vertex, neighbors in graph.items():
-            for neighbor in neighbors:
-                edge = tuple([vertex, neighbor])
-                edges.append(edge)
-
+        edges = set()
         network = []
         neurons = [start_vertex]
 
@@ -107,26 +102,30 @@ class Graph:
             neurons = [neuron for neuron in neurons if neuron in graph]
     
             layer = {}
+            new_edges = set()
             for key in neurons:
                 values = []
                 for value in graph[key]:
-                    edge = tuple([key,value])
-                    if edge in edges:
+                    edge = tuple(sorted([key,value]))
+                    if edge not in edges:
                         values.append(value)
-                        edges.remove(edge)
+                        new_edges.add(edge)
         
                 if values != []:
                     layer[key] = values
 
             network.append(layer)
-            if edges == []:
+            n = len(edges)
+            edges = edges.union(new_edges)
+            
+            if len(edges) == n:
                 break
 
             neurons = list(network[k].values())
             neurons = sum(neurons, [])
             
         return network
-
+        
     @staticmethod
     def network_derivative(network):
 
@@ -154,13 +153,13 @@ class Graph:
         
         return network_der
 
-    def test_isomophism(self,fast=False):
+    def test_isomophism(self,edge=False):
 
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
         
-        if fast == True:
-            network_1 = Graph.fast_oneway_network(self.graph1, vertices1[0])
+        if edge == True:
+            network_1 = Graph.edge_oneway_network(self.graph1, vertices1[0])
         else:
             network_1 = Graph.oneway_network(self.graph1, vertices1[0])
         
@@ -170,8 +169,8 @@ class Graph:
         for v2 in vertices2:
             if N == len(self.graph2[v2]):
                 
-                if fast == True:
-                    network_2 = Graph.fast_oneway_network(self.graph2, v2)
+                if edge == True:
+                    network_2 = Graph.edge_oneway_network(self.graph2, v2)
                 else:
                     network_2 = Graph.oneway_network(self.graph2, v2)
                     
@@ -182,7 +181,7 @@ class Graph:
     
         return False
 
-    def find_orbits(self,fast=False):
+    def find_orbits(self,edge=False):
     
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
@@ -190,8 +189,8 @@ class Graph:
         orb = []
         for v1 in vertices1:
             
-            if fast == True:    
-                network_1 = Graph.fast_oneway_network(self.graph1, v1)
+            if edge == True:    
+                network_1 = Graph.edge_oneway_network(self.graph1, v1)
             else:
                 network_1 = Graph.oneway_network(self.graph1, v1)
                 
@@ -200,8 +199,8 @@ class Graph:
             for v2 in vertices2:
                 if len(self.graph1[v1]) == len(self.graph2[v2]):
                     
-                    if fast == True:
-                        network_2 = Graph.fast_oneway_network(self.graph2, v2)
+                    if edge == True:
+                        network_2 = Graph.edge_oneway_network(self.graph2, v2)
                     else:
                         network_2 = Graph.oneway_network(self.graph2, v2)
                         
