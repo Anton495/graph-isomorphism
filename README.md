@@ -123,7 +123,7 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ![Virtual neural network derivative](./figure/Derivative.png)
 
-## One-way Virtual neural network (fast)
+## Edge one-way virtual neural network (fast)
 
 
 # References
