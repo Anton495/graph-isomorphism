@@ -114,7 +114,6 @@ class Graph:
                 if values != []:
                     layer[key] = values
 
-            
             n = len(edges)
             edges = edges.union(new_edges)
             
