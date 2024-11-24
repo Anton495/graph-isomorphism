@@ -125,6 +125,8 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ## Edge one-way virtual neural network (fast)
 
+When constructing each layer in the network of this type, the edges traversed in all previous layers are not used.
+
 ```python
 >>> cube().edge_oneway_network(cube().graph1,'a')
 [{'a': ['b', 'd', 'e']},
