@@ -125,6 +125,14 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ## Edge one-way virtual neural network (fast)
 
+```python
+>>> cube().edge_oneway_network(cube().graph1,'a')
+[{'a': ['b', 'd', 'e']},
+ {'b': ['c', 'f'], 'd': ['c', 'h'], 'e': ['f', 'h']},
+ {'c': ['g'], 'f': ['g'], 'h': ['g']}]
+>>>
+```
+
 ![Edge network](./figure/Edge_network.png)
 
 # References
