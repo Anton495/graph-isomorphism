@@ -114,12 +114,14 @@ class Graph:
                 if values != []:
                     layer[key] = values
 
-            network.append(layer)
+            
             n = len(edges)
             edges = edges.union(new_edges)
             
             if len(edges) == n:
                 break
+
+            network.append(layer)
 
             neurons = list(network[k].values())
             neurons = sum(neurons, [])
