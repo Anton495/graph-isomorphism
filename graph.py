@@ -90,9 +90,10 @@ class Graph:
         return virtual_network_1 + virtual_network_2
     
     @staticmethod
-    def edge_oneway_network(graph, start_vertex):
+    def minimal_oneway_network(graph, start_vertex, N=None):
 
-        N = len(graph)-1
+        if N == None: 
+            N = len(graph)-1
 
         edges = set()
         network = []
@@ -126,7 +127,7 @@ class Graph:
             neurons = sum(neurons, [])
             
         return network
-        
+
     @staticmethod
     def network_derivative(network):
 
@@ -154,13 +155,13 @@ class Graph:
         
         return network_der
 
-    def test_isomophism(self,edge=False):
+    def test_isomophism(self,minimal=False):
 
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
         
-        if edge == True:
-            network_1 = Graph.edge_oneway_network(self.graph1, vertices1[0])
+        if minimal == True:
+            network_1 = Graph.minimal_oneway_network(self.graph1, vertices1[0])
         else:
             network_1 = Graph.oneway_network(self.graph1, vertices1[0])
         
@@ -170,8 +171,8 @@ class Graph:
         for v2 in vertices2:
             if N == len(self.graph2[v2]):
                 
-                if edge == True:
-                    network_2 = Graph.edge_oneway_network(self.graph2, v2)
+                if minimal == True:
+                    network_2 = Graph.minimal_oneway_network(self.graph2, v2)
                 else:
                     network_2 = Graph.oneway_network(self.graph2, v2)
                     
@@ -182,7 +183,7 @@ class Graph:
     
         return False
 
-    def find_orbits(self,edge=False):
+    def find_orbits(self,minimal=False):
     
         vertices1 = list(self.graph1.keys())
         vertices2 = list(self.graph2.keys())
@@ -190,8 +191,8 @@ class Graph:
         orb = []
         for v1 in vertices1:
             
-            if edge == True:    
-                network_1 = Graph.edge_oneway_network(self.graph1, v1)
+            if minimal == True:    
+                network_1 = Graph.minimal_oneway_network(self.graph1, v1)
             else:
                 network_1 = Graph.oneway_network(self.graph1, v1)
                 
@@ -200,8 +201,8 @@ class Graph:
             for v2 in vertices2:
                 if len(self.graph1[v1]) == len(self.graph2[v2]):
                     
-                    if edge == True:
-                        network_2 = Graph.edge_oneway_network(self.graph2, v2)
+                    if minimal == True:
+                        network_2 = Graph.minimal_oneway_network(self.graph2, v2)
                     else:
                         network_2 = Graph.oneway_network(self.graph2, v2)
                         
