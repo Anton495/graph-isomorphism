@@ -155,10 +155,45 @@ class Graph:
         
         return network_der
 
-    def test_isomophism(self,minimal=False):
+    def part_test_isomophism(self,v1,part,minimal=False):
+        
+        vertices2 = list(self.graph2.keys())
+        
+        if minimal == True:
+            network_1 = Graph.minimal_oneway_network(self.graph1, v1, part)
+        else:
+            network_1 = Graph.oneway_network(self.graph1, v1, part)
+        
+        der_network_1 = Graph.network_derivative(network_1)
+        
+        N = len(self.graph1[v1])
+        new_vertices2 = []
+        for v2 in vertices2:
+            if N == len(self.graph2[v2]):
+                
+                if minimal == True:
+                    network_2 = Graph.minimal_oneway_network(self.graph2, v2, part)
+                else:
+                    network_2 = Graph.oneway_network(self.graph2, v2, part)
+                    
+                der_network_2 = Graph.network_derivative(network_2)
+        
+                if der_network_1==der_network_2:
+                    new_vertices2.append(v2)
+    
+        return new_vertices2
+
+    def test_isomophism(self,minimal=False,part=2):
 
         vertices1 = list(self.graph1.keys())
-        vertices2 = list(self.graph2.keys())
+        
+        if part == 0:
+            vertices2 = list(self.graph2.keys())
+        else:
+            vertices2 = self.part_test_isomophism(vertices1[0],part,minimal)
+        
+        if vertices2 == []:
+            return False
         
         if minimal == True:
             network_1 = Graph.minimal_oneway_network(self.graph1, vertices1[0])
@@ -167,58 +202,63 @@ class Graph:
         
         der_network_1 = Graph.network_derivative(network_1)
         
-        N = len(self.graph1[vertices1[0]])
         for v2 in vertices2:
-            if N == len(self.graph2[v2]):
                 
-                if minimal == True:
-                    network_2 = Graph.minimal_oneway_network(self.graph2, v2)
-                else:
-                    network_2 = Graph.oneway_network(self.graph2, v2)
+            if minimal == True:
+                network_2 = Graph.minimal_oneway_network(self.graph2, v2)
+            else:
+                network_2 = Graph.oneway_network(self.graph2, v2)
                     
-                der_network_2 = Graph.network_derivative(network_2)
+            der_network_2 = Graph.network_derivative(network_2)
         
-                if der_network_1==der_network_2:
-                    return True
+            if der_network_1==der_network_2:
+                return True
     
         return False
 
-    def find_orbits(self,minimal=False):
-    
+    def find_orbits(self,minimal=False,part=2):
+        
         vertices1 = list(self.graph1.keys())
-        vertices2 = list(self.graph2.keys())
-    
+        
+        if part == 0:
+            vertices2 = list(self.graph2.keys())
+        
         orb = []
         for v1 in vertices1:
+            
+            if part != 0:
+                vertices2 = self.part_test_isomophism(v1,part,minimal)
+            
+            if vertices2 == []:
+                return False
             
             if minimal == True:    
                 network_1 = Graph.minimal_oneway_network(self.graph1, v1)
             else:
                 network_1 = Graph.oneway_network(self.graph1, v1)
-                
+            
             der_network_1 = Graph.network_derivative(network_1)
-    
+            
             for v2 in vertices2:
-                if len(self.graph1[v1]) == len(self.graph2[v2]):
                     
-                    if minimal == True:
-                        network_2 = Graph.minimal_oneway_network(self.graph2, v2)
-                    else:
-                        network_2 = Graph.oneway_network(self.graph2, v2)
+                if minimal == True:
+                    network_2 = Graph.minimal_oneway_network(self.graph2, v2)
+                else:
+                    network_2 = Graph.oneway_network(self.graph2, v2)
                         
-                    der_network_2 = Graph.network_derivative(network_2)
+                der_network_2 = Graph.network_derivative(network_2)
         
-                    if der_network_1==der_network_2:
+                if der_network_1==der_network_2:
                         
-                        row = [row[0] for row in orb]
-                        if v1 in row:
-                            ind = row.index(v1)
-                            if type(orb[ind][1]) != list:
-                                orb[ind][1] = [orb[ind][1]]
+                    row = [row[0] for row in orb]
+                    if v1 in row:
+                        ind = row.index(v1)
+                        if type(orb[ind][1]) != list:
+                            orb[ind][1] = [orb[ind][1]]
                                 
-                            orb[ind][1].append(v2)
-                        else:
-                            orb.append([v1,v2])  
+                        orb[ind][1].append(v2)
+                    else:
+                        orb.append([v1,v2])  
             
             if orb == []:
                 return False
