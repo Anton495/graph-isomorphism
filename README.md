@@ -140,7 +140,7 @@ True
 ('e~', 'f~', 'g~', 'h~', 'a~', 'b~', 'c~', 'd~')]
 ```
 
-![Edge network](./figure/Edge_network.png)
+![Minimal network](./figure/Minimal_network.png)
 
 # References
 
