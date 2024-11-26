@@ -183,7 +183,7 @@ class Graph:
     
         return new_vertices2
 
-    def test_isomophism(self,minimal=False,part=2):
+    def test_isomophism(self,minimal=True,part=2):
 
         vertices1 = list(self.graph1.keys())
         
@@ -216,7 +216,7 @@ class Graph:
     
         return False
 
-    def find_orbits(self,minimal=False,part=2):
+    def find_orbits(self,minimal=True,part=2):
         
         vertices1 = list(self.graph1.keys())
         
