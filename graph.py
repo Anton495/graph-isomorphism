@@ -155,7 +155,7 @@ class Graph:
         
         return network_der
 
-    def part_test_isomophism(self,v1,part,minimal=False):
+    def part_test_isomophism(self,v1,part,minimal=True):
         
         vertices2 = list(self.graph2.keys())
         
@@ -185,6 +185,9 @@ class Graph:
 
     def test_isomophism(self,minimal=True,part=2):
 
+        if len(self.graph1) != len(self.graph2):
+            return False    
+        
         vertices1 = list(self.graph1.keys())
         
         if part == 0:
@@ -217,6 +220,9 @@ class Graph:
         return False
 
     def find_orbits(self,minimal=True,part=2):
+
+        if len(self.graph1) != len(self.graph2):
+            return False    
         
         vertices1 = list(self.graph1.keys())
         
