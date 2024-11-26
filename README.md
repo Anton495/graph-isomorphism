@@ -6,7 +6,7 @@ This package have two basic functions:
 
 2. The `find_orbits()` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
 
-Runtime depends polynomially on the number of vertices. In the first case the complexity of the algorithm is $O(n^4)$, in the second case it is $O(n^5)$.
+Runtime depends polynomially on the number of vertices. In the first case the complexity of the algorithm is $O(n^2)$, in the second case it is $O(n^3)$.
 
 Pseudomultigraphs and directed graphs are supported.
 
