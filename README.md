@@ -18,7 +18,7 @@ Run examples.py for usage in an interactive session.
 
 ```python
 >>> g1 = {'1': ['2'],'2': ['1','3'], '3': ['2']}
->>> g2 = {'a': ['b','c'],'b': ['a','c'], 'c': ['a','b'],}
+>>> g2 = {'a': ['b','c'],'b': ['a','c'], 'c': ['a','b']}
 >>> example = Graph(g1,g2)
 >>> example.test_isomophism()
 False
@@ -125,7 +125,7 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ## Minimal one-way virtual neural network
 
-When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. This allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits.
+When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits.
 
 ```python
 >>> cube().minimal_oneway_network(cube().graph1,'a')
