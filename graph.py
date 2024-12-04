@@ -288,9 +288,6 @@ class Graph:
             if type(iso[m][1]) != str and len(list(iso[m][1])) == 2:
                 r = m
                 break
-            elif type(iso[m][1]) == str:
-                r = m
-                break
         
         if type(iso[r][1]) == str:
             A[r] = iso[0][1]
