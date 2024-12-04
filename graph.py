@@ -296,19 +296,19 @@ class Graph:
             A[r] = choice(list(iso[r][1]))
             A_test[r] = 1
         
-        for m in range(len(A)):
+        for m in range(len(G)):
             i = A_test.index(1)
-            v1 = self.graph1[G[i]]
-            v2 = self.graph2[A[i]]
-            shuffle(v1)
-            shuffle(v2)
+            vertices1 = self.graph1[G[i]]
+            vertices2 = self.graph2[A[i]]
+            shuffle(vertices1)
+            shuffle(vertices2)
         
-            for k1 in range(len(v1)):
-                ind = G.index(v1[k1])
+            for v1 in vertices1:
+                ind = G.index(v1)
             
-                for k2 in range(len(v2)):
-                    if A[ind] == None and v2[k2] not in A and v2[k2] in iso[ind][1]:
-                        A[ind] = v2[k2]
+                for v2 in vertices2:
+                    if A[ind] == None and v2 not in A and v2 in iso[ind][1]:
+                        A[ind] = v2
                         A_test[ind] = 1
                 
             A_test[i] = 0
