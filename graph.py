@@ -283,22 +283,21 @@ class Graph:
         A = [None]*len(G)
         A_test = [0]*len(G)
         
-        r = None
+        r = 0
         for m in range(len(iso)):
-            if type(iso[m][1]) != str or len(list(iso[m][1])) == 2:
+            if type(iso[m][1]) != str and len(list(iso[m][1])) == 2:
+                r = m
+                break
+            elif type(iso[m][1]) == str:
                 r = m
                 break
         
-        if r == None:
-            A[0] = choice(list(iso[0][1]))
-            A_test[0] = 1
+        if type(iso[r][1]) == str:
+            A[r] = iso[0][1]
+            A_test[r] = 1
         else:
-            if type(iso[r][1]) == str:
-                A[r] = iso[0][1]
-                A_test[r] = 1
-            else:
-                A[r] = choice(list(iso[r][1]))
-                A_test[r] = 1
+            A[r] = choice(list(iso[r][1]))
+            A_test[r] = 1
         
         for m in range(len(A)):
             i = A_test.index(1)
