@@ -78,7 +78,7 @@ For the grid we will have the complexity $O(n^{2.1})$.
 In general, the complexity will not exceed $O(n^3)$.
 
 ```python
->>> example6().twoway_network(example6().graph1, (0,0), (2,0))
+>>> Graph.twoway_network(example6().graph1, (0,0), (2,0))
 [{(0, 0): [(1, 0), (0, 1)]},
  {(1, 0): [(1, 1)], (0, 1): [(1, 1), (0, 2)]},
  {(1, 1): [(2, 1), (0, 1), (1, 2), (1, 0)], (0, 2): [(1, 2), (0, 1)]},
@@ -112,11 +112,11 @@ Two graphs are isomorphic if and only if the derivatives of their virtual neural
 As an example, consider two one-way virtual neural networks and its derivative.
 
 ```python
->>> network1 = example7().oneway_network(example7().graph1,'a',3)
->>> example7().network_derivative(network1)
+>>> network1 = Graph.oneway_network(example7().graph1,'a',3)
+>>> Graph.network_derivative(network1)
 [[(2, [1, 2])],[(1, [2]), (2, [1, 2])]]
->>> network2 = example7().oneway_network(example7().graph2,'i',3)
->>> example7().network_derivative(network2)
+>>> network2 = Graph.oneway_network(example7().graph2,'i',3)
+>>> Graph.network_derivative(network2)
 [[(2, [1, 2])],[(1, [1]), (2, [2, 2])]]
 >>>
 ```
@@ -128,7 +128,7 @@ As an example, consider two one-way virtual neural networks and its derivative.
 When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits.
 
 ```python
->>> cube().minimal_oneway_network(cube().graph1,'a')
+>>> Graph.minimal_oneway_network(cube().graph1,'a')
 [{'a': ['b', 'd', 'e']},
  {'b': ['c', 'f'], 'd': ['c', 'h'], 'e': ['f', 'h']},
  {'c': ['g'], 'f': ['g'], 'h': ['g']}]
