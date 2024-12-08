@@ -154,4 +154,4 @@ True
 
 [5] Steven S. Skiena, The Algorithm Design Manual, Springer, 3nd ed, 2020, 800 p.
 
-[6] Maxime Labonne, Hands-On Graph Neural Networks Using Python, 2023, 331 p.,https://github.com/PacktPublishing/Hands-On-Graph-Neural-Networks-Using-Python
+[6] Maxime Labonne, Hands-On Graph Neural Networks Using Python, 2023, 331 p., https://github.com/PacktPublishing/Hands-On-Graph-Neural-Networks-Using-Python
