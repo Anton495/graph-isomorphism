@@ -153,3 +153,5 @@ True
 [4] László Babai, Graph Isomorphism in Quasipolynomial Time, Version 2.5, 2018, 109 p., https://people.cs.uchicago.edu/~laci/quasi25.pdf
 
 [5] Steven S. Skiena, The Algorithm Design Manual, Springer, 3nd ed, 2020, 800 p.
+
+[6] Maxime Labonne, Hands-On Graph Neural Networks Using Python, 2023, 331 p.,https://github.com/PacktPublishing/Hands-On-Graph-Neural-Networks-Using-Python
