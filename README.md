@@ -2,9 +2,9 @@
 
 This package have two basic functions:
 
-1. The `test_isomophism()` function can be used to test graphs for isomorphism. Outputs `True` or `False`.
+1. The `test_isomophism(minimal=True,depth=2)` function can be used to test graphs for isomorphism. Outputs `True` or `False`.
 
-2. The `find_orbits()` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
+2. The `find_orbits(minimal=True,depth=2)` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
 
 Runtime depends polynomially on the number of vertices. In the first case the complexity of the algorithm is $O(n^2)$, in the second case it is $O(n^3)$.
 
@@ -132,9 +132,9 @@ When constructing each layer in a network of this type, the edges traversed in a
 [{'a': ['b', 'd', 'e']},
  {'b': ['c', 'f'], 'd': ['c', 'h'], 'e': ['f', 'h']},
  {'c': ['g'], 'f': ['g'], 'h': ['g']}]
->>> cube().test_isomophism(minimal=True)
+>>> cube().test_isomophism()
 True
->>> iso = cube().find_orbits(minimal=True)
+>>> iso = cube().find_orbits()
 >>> cube().find_automorfism(iso)
 [('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
 ('e~', 'f~', 'g~', 'h~', 'a~', 'b~', 'c~', 'd~')]
