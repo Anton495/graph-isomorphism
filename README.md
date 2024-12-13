@@ -108,6 +108,8 @@ When constructing the derivative of a virtual neural network, non-zero elements 
    
 2. Each outdegree from the current list is associated with the outdegrees from the next list. For example, the entry $(2,[1,2])$ means that the vertex with the outdegree of 2 generates two vertices with outdegrees of 1 and 2.
 
+The resulting network stores information about how the adjacent edges are connected to each other in the original network.
+
 Two graphs are isomorphic if and only if the derivatives of their virtual neural networks constructed from the same vertex coincide.
 
 As an example, consider two one-way virtual neural networks and its derivative.
