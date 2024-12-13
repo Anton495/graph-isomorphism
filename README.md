@@ -67,7 +67,7 @@ The `find_automorfism()` function can be used to find arbitary automorphism subs
 # Basic concepts
 ## Virtual neural network
 
-Virtual neural network is a network focused on working with graphs. In networks of this type, the vertices of the graph are called neurons and the edges of the graph are called synaptic connections. This type of network can be one-way or two-way.
+Virtual neural network is a graph neural network. In networks of this type, the vertices of the graph are called neurons and the edges of the graph are called synaptic connections. This type of network can be one-way or two-way.
 
 We illustrate the main idea of this design with the following example. 
 Let's build two-way virtual neural network for grid 3x3. 
