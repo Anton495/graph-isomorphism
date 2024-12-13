@@ -40,12 +40,12 @@ class Graph:
             graph2[str(key)+'~'] = [str(value)+'~' for value in values]
     
         return graph2
-        
-    @staticmethod
-    def oneway_network(graph, start_vertex, N=None, end_vertex=None):
     
-        if N == None: 
-            N = len(graph)-1
+    @staticmethod
+    def oneway_network(graph, start_vertex, depth=None, end_vertex=None):
+    
+        if depth == None: 
+            depth = len(graph)-1
 
         network = []
         neurons = [start_vertex]
@@ -53,7 +53,7 @@ class Graph:
         if start_vertex in graph[start_vertex]:
             start_vertex = None
         
-        for k in range(N):
+        for k in range(depth):
             neurons = [neuron for neuron in neurons if neuron in graph]
             network.append({key:[v for v in graph[key] if v != start_vertex and v != end_vertex] for key in neurons})
         
@@ -65,15 +65,15 @@ class Graph:
     @staticmethod
     def twoway_network(graph, first_vertex, end_vertex):
     
-        n = len(graph)-1
-        N = n//2 if n//2 == n/2 else n//2+1
+        depth = len(graph)-1
+        n = depth//2 if depth//2 == depth/2 else depth//2+1
     
-        virtual_network_1 = Graph.oneway_network(graph, first_vertex, N, end_vertex)
+        virtual_network_1 = Graph.oneway_network(graph, first_vertex, n, end_vertex)
     
-        if N//2 == N/2:
-            network_2 = Graph.oneway_network(graph, end_vertex, N, first_vertex)
+        if n//2 == n/2:
+            network_2 = Graph.oneway_network(graph, end_vertex, n, first_vertex)
         else:
-            network_2 = Graph.oneway_network(graph, end_vertex, N-1, first_vertex)
+            network_2 = Graph.oneway_network(graph, end_vertex, n-1, first_vertex)
         
         network_2 = list(reversed(network_2))
     
@@ -90,16 +90,16 @@ class Graph:
         return virtual_network_1 + virtual_network_2
     
     @staticmethod
-    def minimal_oneway_network(graph, start_vertex, N=None):
+    def minimal_oneway_network(graph, start_vertex, depth=None):
 
-        if N == None: 
-            N = len(graph)-1
+        if depth == None: 
+            depth = len(graph)-1
 
         edges = set()
         network = []
         neurons = [start_vertex]
 
-        for k in range(N):
+        for k in range(depth):
             neurons = [neuron for neuron in neurons if neuron in graph]
     
             layer = {}
@@ -127,13 +127,44 @@ class Graph:
             neurons = sum(neurons, [])
             
         return network
+    
+    @staticmethod
+    def get_degree_matrix(graph,network):
+        
+        keys = set(graph.keys())
+        values = set(sum(graph.values(),[]))
+        vertices = sorted(list(keys|values))
 
+        N = len(vertices)  
+        depth = len(network)
+
+        degree_matrix = []
+        for n in range(N):
+            degree_matrix.append([[0]*(depth+1),[0]*(depth+1)])
+                
+        for n in range(depth):
+            values = sum(network[n].values(),[])
+            for m in range(N):
+                if vertices[m] in values:
+                    degree_matrix[m][0][n+1] = values.count(vertices[m])
+                if vertices[m] in network[n]:
+                    degree_matrix[m][1][n] = len(network[n][vertices[m]])
+
+        for n in range(N):
+            degree_matrix[n] = tuple(degree_matrix[n])
+            
+        degree_matrix_dict = {}
+        for n in range(N):
+            degree_matrix_dict[vertices[n]] = degree_matrix[n]
+        
+        return degree_matrix_dict
+    
     @staticmethod
     def network_derivative(network):
 
-        N = len(network) 
+        depth = len(network) 
         network_der = []
-        for k in range(N-1):  
+        for k in range(depth-1):  
 
             current_keys = list(network[k].keys())
 
@@ -154,15 +185,15 @@ class Graph:
             network_der.append(sorted(layer))
         
         return network_der
-
-    def part_test_isomophism(self,v1,part,minimal=True):
+    
+    def part_test_isomophism(self,v1,depth,minimal=True):
         
         vertices2 = list(self.graph2.keys())
         
         if minimal == True:
-            network_1 = Graph.minimal_oneway_network(self.graph1, v1, part)
+            network_1 = Graph.minimal_oneway_network(self.graph1, v1, depth)
         else:
-            network_1 = Graph.oneway_network(self.graph1, v1, part)
+            network_1 = Graph.oneway_network(self.graph1, v1, depth)
         
         der_network_1 = Graph.network_derivative(network_1)
         
@@ -172,9 +203,9 @@ class Graph:
             if N == len(self.graph2[v2]):
                 
                 if minimal == True:
-                    network_2 = Graph.minimal_oneway_network(self.graph2, v2, part)
+                    network_2 = Graph.minimal_oneway_network(self.graph2, v2, depth)
                 else:
-                    network_2 = Graph.oneway_network(self.graph2, v2, part)
+                    network_2 = Graph.oneway_network(self.graph2, v2, depth)
                     
                 der_network_2 = Graph.network_derivative(network_2)
         
@@ -182,18 +213,18 @@ class Graph:
                     new_vertices2.append(v2)
     
         return new_vertices2
-
-    def test_isomophism(self,minimal=True,part=2):
+    
+    def test_isomophism(self,minimal=True,depth=2):
 
         if len(self.graph1) != len(self.graph2):
-            return False    
-        
+            return False        
+
         vertices1 = list(self.graph1.keys())
         
-        if part == 0:
+        if depth == 0:
             vertices2 = list(self.graph2.keys())
         else:
-            vertices2 = self.part_test_isomophism(vertices1[0],part,minimal)
+            vertices2 = self.part_test_isomophism(vertices1[0],depth,minimal)
         
         if vertices2 == []:
             return False
@@ -218,22 +249,22 @@ class Graph:
                 return True
     
         return False
-
-    def find_orbits(self,minimal=True,part=2):
-
+    
+    def find_orbits(self,minimal=True,depth=2):
+        
         if len(self.graph1) != len(self.graph2):
-            return False    
+            return False
         
         vertices1 = list(self.graph1.keys())
         
-        if part == 0:
+        if depth == 0:
             vertices2 = list(self.graph2.keys())
         
         orb = []
         for v1 in vertices1:
             
-            if part != 0:
-                vertices2 = self.part_test_isomophism(v1,part,minimal)
+            if depth != 0:
+                vertices2 = self.part_test_isomophism(v1,depth,minimal)
             
             if vertices2 == []:
                 return False
@@ -261,7 +292,7 @@ class Graph:
                         ind = row.index(v1)
                         if type(orb[ind][1]) != list:
                             orb[ind][1] = [orb[ind][1]]
-                                
+                        
                         orb[ind][1].append(v2)
                     else:
                         orb.append([v1,v2])  
@@ -276,7 +307,7 @@ class Graph:
                 orb[k] = (orb[k][0],orb[k][1])
                 
         return orb
-
+    
     def find_automorfism(self,iso):
 
         G = tuple(k[0] for k in iso)
