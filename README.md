@@ -102,7 +102,7 @@ In general, the complexity will not exceed $O(n^3)$.
 
 One of the key concepts of the virtual neural network is the matrix indegree and outdegree.
 
-```
+```python
 >>>
 network = Graph.twoway_network(example6().graph1, (0,0), (2,0))
 Graph.get_degree_matrix(example6().graph1,network)
