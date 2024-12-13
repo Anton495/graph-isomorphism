@@ -104,9 +104,9 @@ In general, the complexity will not exceed $O(n^3)$.
 
 When constructing the derivative of a virtual neural network, non-zero elements of the outdegree matrix are used. This is done as follows:
 
-1. For each layer, its own list is compiled that consists of the orders of groups (number) of synaptic connections for each neuron. Thus, the sequence of lists consisting of groups orders is obtained.
+1. For each layer, a list is created, consisting of the outdegrees of each vertex. Thus, a certain sequence of lists is obtained.
    
-2. Each group order from the lists is associated with the list of groups orders that it generates. For example, writing $(2,[1,2])$ means that the group of order 2 generates two groups of order 1 and 2.
+2. Each outdegree from the current list is associated with the outdegrees from the next list. For example, the entry $(2,[1,2])$ means that the vertex with the outdegree of 2 generates two vertices with outdegrees of 1 and 2.
 
 Two graphs are isomorphic if and only if the derivatives of their virtual neural networks constructed from the same vertex coincide.
 
