@@ -8,7 +8,7 @@ This package have two basic functions:
 
 Runtime depends polynomially on the number of vertices. In the first case the complexity of the algorithm is $O(|V|^2)$, in the second case it is $O(|V|^3)$, where $|V|$ - number of graph vertices
 
-Directed and pseudomultigraphs graphs are supported.
+Directed graphs and pseudomultigraphs are supported.
 
 The module has been tested to work on Python 3.12.7.
 
