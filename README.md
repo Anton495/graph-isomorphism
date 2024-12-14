@@ -100,7 +100,7 @@ In general, the complexity will not exceed $O(n^3)$.
 
 ![Virtual neural network](./figure/Network.png)
 
-One of the key concepts of the virtual neural network is the matrix indegree and outdegree.
+One of the key concepts of the virtual neural network is the matrix indegree and outdegree. Each row in this matrix corresponds to its own vertex. Furthermore, its rows do not have a fixed association with indices.
 
 ```python
 >>>
