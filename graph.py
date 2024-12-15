@@ -253,7 +253,7 @@ class Graph:
     def find_orbits(self,minimal=True,depth=2):
         
         if len(self.graph1) != len(self.graph2):
-            return False
+            return None
         
         vertices1 = list(self.graph1.keys())
         
