@@ -65,9 +65,9 @@ The `find_automorfism()` function can be used to find arbitary automorphism subs
 ```
 
 # Basic concepts
-## Virtual neural network
+## Graph virtual neural network
 
-Virtual neural network is a graph neural network. In networks of this type, the vertices of the graph are called neurons and the edges of the graph are called synaptic connections. This type of network can be one-way or two-way.
+Graph virtual neural network (GVN) is a network focused on working with graphs. In networks of this type, the vertices of the graph are called neurons and the edges of the graph are called synaptic connections. This type of network can be one-way or two-way.
 
 We illustrate the main idea of this design with the following example. 
 Let's build two-way virtual neural network for grid 3x3. 
@@ -100,7 +100,7 @@ In general, the complexity will not exceed $O(n^3)$.
 
 ![Virtual neural network](./figure/Network.png)
 
-One of the key concepts of the virtual neural network is the matrix indegree and outdegree. Each row in this matrix corresponds to its own vertex. Furthermore, its rows do not have a fixed association with indices.
+One of the key concepts of GVN is the matrix indegree and outdegree. Each row in this matrix corresponds to its own vertex. Furthermore, its rows do not have a fixed association with indices.
 
 ```python
 >>>
@@ -118,9 +118,9 @@ Graph.get_degree_matrix(example6().graph1,network)
 >>>
 ```
 
-## Virtual neural network derivative
+## Graph virtual neural network derivative
 
-When constructing the derivative of a virtual neural network, non-zero elements of the outdegree matrix are used. This is done as follows:
+When constructing the derivative of GVN, non-zero elements of the outdegree matrix are used. This is done as follows:
 
 1. For each layer, a list is created, consisting of the outdegrees of each vertex. Thus, a certain sequence of lists is obtained.
    
@@ -144,7 +144,7 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ![Virtual neural network derivative](./figure/Derivative.png)
 
-## Minimal one-way virtual neural network
+## Minimal one-way graph virtual neural network
 
 When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits.
 
