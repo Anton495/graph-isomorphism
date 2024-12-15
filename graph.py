@@ -308,26 +308,31 @@ class Graph:
                 
         return orb
     
-    def find_automorfism(self,iso):
-
-        G = tuple(k[0] for k in iso)
-        A = [None]*len(G)
-        A_test = [0]*len(G)
+    def find_automorfism(self,orb):
+        
+        G = tuple(k[0] for k in orb)
+        N = len(G)
+        
+        A = [None]*N
+        A_test = [0]*N
+        for n in range(N):
+            if type(orb[n][1]) == str:
+                A[n] = orb[n][1]
+                A_test[n] = 1 
+        
+        if None not in A:
+            return [G,tuple(A)]
         
         r = 0
-        for m in range(len(iso)):
-            if type(iso[m][1]) != str and len(list(iso[m][1])) == 2:
+        for m in range(len(orb)):
+            if type(orb[m][1]) != str and len(list(orb[m][1])) == 2:
                 r = m
                 break
         
-        if type(iso[r][1]) == str:
-            A[r] = iso[0][1]
-            A_test[r] = 1
-        else:
-            A[r] = choice(list(iso[r][1]))
-            A_test[r] = 1
+        A[r] = choice(list(orb[r][1]))
+        A_test[r] = 1
         
-        for m in range(len(G)):
+        for m in range(N):
             i = A_test.index(1)
             vertices1 = self.graph1[G[i]]
             vertices2 = self.graph2[A[i]]
@@ -338,7 +343,7 @@ class Graph:
                 ind = G.index(v1)
             
                 for v2 in vertices2:
-                    if A[ind] == None and v2 not in A and v2 in iso[ind][1]:
+                    if A[ind] == None and v2 not in A and v2 in orb[ind][1]:
                         A[ind] = v2
                         A_test[ind] = 1
                 
