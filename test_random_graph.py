@@ -58,9 +58,12 @@ def test_isomorphic_random_graphs(n, p):
     graph = _create_random_graph(n, p)
     permuted = _permute_graph(graph)
     pair = Graph(graph, permuted)
-    iso = pair.find_isomophism(rev=True)
-    if iso is False:
-        raise ValueError("test_isomorphic_random_graphs failed: not found isomorphism")
+    orb = pair.find_orbits()
+    if orb is None:
+        raise ValueError("test_isomorphic_random_graphs failed: not found orbits")
+    iso = pair.find_automorfism(orb)
+    if iso is None:
+        raise ValueError("test_isomorphic_random_graphs failed: not found automorfism")
     rename = _get_rename_from_isomorphism(iso)
     if not _check_equal(_rename_vertices(graph, rename), permuted):
         raise ValueError("test_isomorphic_random_graphs failed: incorrect isomorphism")
