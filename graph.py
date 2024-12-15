@@ -298,7 +298,7 @@ class Graph:
                         orb.append([v1,v2])  
             
             if orb == []:
-                return False
+                return None
         
         for k in range(len(orb)):
             if type(orb[k][1]) == list:
