@@ -323,16 +323,14 @@ class Graph:
         if None not in A:
             return [G,tuple(A)]
         
-        r = 0
-        for m in range(len(orb)):
-            if type(orb[m][1]) != str and len(list(orb[m][1])) == 2:
-                r = m
+        for n in range(N):
+            if type(orb[n][1]) != str and len(list(orb[n][1])) == 2:
                 break
         
-        A[r] = choice(list(orb[r][1]))
-        A_test[r] = 1
+        A[n] = choice(list(orb[n][1]))
+        A_test[n] = 1
         
-        for m in range(N):
+        for n in range(N):
             i = A_test.index(1)
             vertices1 = self.graph1[G[i]]
             vertices2 = self.graph2[A[i]]
