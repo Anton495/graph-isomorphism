@@ -267,7 +267,7 @@ class Graph:
                 vertices2 = self.part_test_isomophism(v1,depth,minimal)
             
             if vertices2 == []:
-                return False
+                return None
             
             if minimal == True:    
                 network_1 = Graph.minimal_oneway_network(self.graph1, v1)
