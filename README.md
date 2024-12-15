@@ -128,7 +128,7 @@ When constructing the derivative of GVN, non-zero elements of the outdegree matr
 
 The resulting network stores information about how the adjacent edges are connected to each other in the original network.
 
-Two graphs are isomorphic if and only if the derivatives of their virtual neural networks constructed from the same vertex coincide.
+Two graphs are isomorphic if and only if the derivatives of their GVNs constructed from the same vertex coincide.
 
 As an example, consider two one-way virtual neural networks and its derivative.
 
