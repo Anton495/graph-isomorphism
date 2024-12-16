@@ -6,7 +6,7 @@ This package have two basic functions:
 
 2. The `find_orbits(minimal=True,depth=2)` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
 
-Runtime depends polynomially on the number of vertices. In the first case the complexity of the algorithm is $O(|V|^2)$, in the second case it is $O(|V|^3)$, where $|V|$ - number of graph vertices.
+Runtime depends polynomially on the number of vertices. In the first case the complexity of the algorithm is $O(|V|^{1+c}+|V|^c\cdot|E|)$, in the second case it is $O(|V|^{2+c}+|V|^{1+c}\cdot|E|)$, where $0<c<1$, $|V|$ - the number of vertices and $|E|$ - the number of edges in the graph. With the correct choice of depth, the parameter c is close to zero. In most cases, it is enough to choose to take a fairly small depth. Here $depth \le 2$.
 
 Directed graphs and pseudomultigraphs are supported.
 
@@ -146,7 +146,7 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ## Minimal one-way graph virtual neural network
 
-When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits. The time complexity is $O(|V|+|E|)$, where $|V|$ - number of vertices, $|E|$ - the number of edges in the graph.
+When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits. The time complexity is $O(|V|+|E|)$.
 
 ```python
 >>> Graph.minimal_oneway_network(cube().graph1,'a')
