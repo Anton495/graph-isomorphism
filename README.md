@@ -6,7 +6,7 @@ This package have two basic functions:
 
 2. The `find_orbits(minimal=True,depth=2)` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
 
-Runtime depends polynomially on the number of vertices and edges. In the first case the complexity of the algorithm is $O(|V|^{1+c}+|V|^c\cdot|E|)$, in the second case it is $O(|V|^{2+c}+|V|^{1+c}\cdot|E|)$, where $0<c<1$, $|V|$ - the number of vertices and $|E|$ - the number of edges in the graph. With the correct choice of depth, the parameter c is close to zero. In most cases, it is enough to choose to take a fairly small depth. Here $depth \ge 2$.
+Runtime depends polynomially on the number of vertices and edges. In the first case the complexity of the algorithm is $O(|V|^{1+c}+|V|^c\cdot|E|)$, in the second case it is $O(|V|^{2+c}+|V|^{1+c}\cdot|E|)$, where $0<c<1$, $|V|$ - the number of vertices and $|E|$ - the number of edges in the graph. With the correct choice of `depth`, the parameter c is close to zero. In most cases, it is enough to choose to take a fairly small `depth`. Here $depth \ge 2$.
 
 Directed graphs and pseudomultigraphs are supported.
 
