@@ -74,8 +74,8 @@ Let's build two-way virtual neural network for grid 3x3.
 We choose (0,0) and (2,0) as the initial and final coordinates, respectively.
 Such the network contains information about all possible paths from point (0,0) to point (2,0) in eight unit steps.
 The construction is carried out on both sides, which eliminates the formation of dead-end paths.
-For the grid we will have the complexity $O(n^{2.1})$.
-In general, the complexity will not exceed $O(n^3)$.
+For the grid we will have the complexity $O(|V|^{2.1})$.
+In general, the complexity will not exceed $O(|V|^3)$.
 
 ```python
 >>> Graph.twoway_network(example6().graph1, (0,0), (2,0))
