@@ -146,7 +146,7 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ## Minimal one-way graph virtual neural network
 
-When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits.
+When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits. The time complexity is $O(|V|+|E|)$, where $|V|$ - number of vertices, $|E|$ - the number of edges in the graph.
 
 ```python
 >>> Graph.minimal_oneway_network(cube().graph1,'a')
