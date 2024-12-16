@@ -19,13 +19,8 @@ def _create_random_graph(n, p):
 
 def _get_rename_from_isomorphism(iso):
     rename = {}
-    seen = set()
-    for v, w in iso:
-        if isinstance(w, set) or isinstance(w, list):
-            not_used = [u for u in sorted(w) if not u in seen]
-            w = not_used[0]
+    for v, w in zip(iso[0], iso[1]):
         rename[v] = w
-        seen.add(w)
     return rename
 
 
