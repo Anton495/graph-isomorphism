@@ -100,7 +100,7 @@ In general, the complexity will not exceed $O(|V|^3)$.
 
 ![Virtual neural network](./figure/Network.png)
 
-One of the key concepts of GVN is the matrix indegree and outdegree. Each row in this matrix corresponds to its own vertex. Furthermore, its rows do not have a fixed association with indices.
+One of the key concepts of GVN is the matrix indegrees and outdegrees. Each row in this matrix corresponds to its own vertex. Furthermore, its rows do not have a fixed association with indices.
 
 ```python
 >>>
