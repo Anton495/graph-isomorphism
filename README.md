@@ -48,8 +48,8 @@ True
 # Symmetry in graphs and automorfism
 
 Symmetry in graphs can be divided into three types:
-1. Simple symmetry. The graph has one axes of symmetry. The order of the automorphism group is $\ge2$.
-2. k-fold symmetry. The graph has k axes of symmetry. The order of the automorphism group is $\ge2\cdot k$.
+1. Simple (bilateral) symmetry. The graph has one axes of symmetry. The order of the automorphism group is $\ge2$.
+2. k-fold (double, triple, etc.) symmetry. The graph has k axes of symmetry. The order of the automorphism group is $\ge2\cdot k$.
 3. Multiple symmetry. All vertices of the graph are isomorphic to each other and lie on one of the axes of symmetry. The order of the automorphism group is $\ge2\cdot|V|$, where $|V|$ is the number of vertices of the graph.
 
 ![Symmetry types](./figure/Symmetry_types.png)
