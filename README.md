@@ -54,11 +54,11 @@ Symmetry in graphs can be divided into three types:
 
 ![Symmetry types](./figure/Symmetry_types.png)
 
-The `find_automorfism()` function can be used to find arbitary automorphism substitution for any symmetry type.
+The `find_automorphism()` function can be used to find arbitary automorphism substitution for any symmetry type.
 
 ```python
 >>> orb = example2().find_orbits()
->>> example2().find_automorfism(orb)
+>>> example2().find_automorphism(orb)
 [('a', 'b', 'c', 'd', 'e', 'f'),
  ('f~', 'd~', 'e~', 'b~', 'c~', 'a~')]
 >>>
