@@ -308,7 +308,7 @@ class Graph:
                 
         return orb
     
-    def find_automorfism(self,orb):
+    def find_automorphism(self,orb):
         
         G = tuple(k[0] for k in orb)
         N = len(G)
