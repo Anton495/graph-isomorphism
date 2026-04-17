@@ -186,7 +186,7 @@ class Graph:
         
         return network_der
     
-    def part_test_isomophism(self,v1,depth,minimal=True):
+    def part_test_isomorphism(self,v1,depth,minimal=True):
         
         vertices2 = list(self.graph2.keys())
         
@@ -214,7 +214,7 @@ class Graph:
     
         return new_vertices2
     
-    def test_isomophism(self,minimal=True,depth=2):
+    def test_isomorphism(self,minimal=True,depth=2):
 
         if len(self.graph1) != len(self.graph2):
             return False        
@@ -224,7 +224,7 @@ class Graph:
         if depth == 0:
             vertices2 = list(self.graph2.keys())
         else:
-            vertices2 = self.part_test_isomophism(vertices1[0],depth,minimal)
+            vertices2 = self.part_test_isomorphism(vertices1[0],depth,minimal)
         
         if vertices2 == []:
             return False
@@ -264,7 +264,7 @@ class Graph:
         for v1 in vertices1:
             
             if depth != 0:
-                vertices2 = self.part_test_isomophism(v1,depth,minimal)
+                vertices2 = self.part_test_isomorphism(v1,depth,minimal)
             
             if vertices2 == []:
                 return None
