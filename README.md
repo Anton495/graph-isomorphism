@@ -153,7 +153,7 @@ When constructing each layer in a network of this type, the edges traversed in a
 [{'a': ['b', 'd', 'e']},
  {'b': ['c', 'f'], 'd': ['c', 'h'], 'e': ['f', 'h']},
  {'c': ['g'], 'f': ['g'], 'h': ['g']}]
->>> cube().test_isomophism()
+>>> cube().test_isomorphism()
 True
 >>> iso = cube().find_orbits()
 >>> cube().find_automorfism(iso)
