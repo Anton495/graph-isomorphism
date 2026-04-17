@@ -20,7 +20,7 @@ Run examples.py for usage in an interactive session.
 >>> g1 = {'1': ['2'],'2': ['1','3'], '3': ['2']}
 >>> g2 = {'a': ['b','c'],'b': ['a','c'], 'c': ['a','b']}
 >>> example = Graph(g1,g2)
->>> example.test_isomophism()
+>>> example.test_isomorphism()
 False
 >>> example1().graph1
 {'1': ['2', '3'],
@@ -34,7 +34,7 @@ False
  'c': ['a','b','d','e'],
  'd': ['b','c','e'],
  'e': ['b','c','d']}
->>> example1().test_isomophism()
+>>> example1().test_isomorphism()
 True
 >>> example1().find_orbits()
 [('1', 'a'),
