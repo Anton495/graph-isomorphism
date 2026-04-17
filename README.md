@@ -2,7 +2,7 @@
 
 This package have two basic functions:
 
-1. The `test_isomophism(minimal=True,depth=2)` function can be used to test graphs for isomorphism. Outputs `True` or `False`.
+1. The `test_isomorphism(minimal=True,depth=2)` function can be used to test graphs for isomorphism. Outputs `True` or `False`.
 
 2. The `find_orbits(minimal=True,depth=2)` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
 
