@@ -1,3 +1,5 @@
+⚠️ Coming soon: a major update with architecture improvements and a fast Python + Numba version for large graphs
+
 # Graph isomorphism
 
 This package have two basic functions:
