@@ -102,7 +102,7 @@ In general, the complexity will not exceed $O(|V|^3)$.
 
 ![Virtual neural network](./figure/Network.png)
 
-# Matrix Indegrees and Outdegrees.
+## Matrix Indegrees and Outdegrees
 
 One of the key concepts of GVN is the matrix indegrees and outdegrees. Each row in this matrix corresponds to its own vertex. Furthermore, its rows do not have a fixed association with indices.
 
