@@ -138,13 +138,13 @@ Graph.get_degree_dict(example6().graph1,network)
 
 The dictionary of indegrees and outdegrees, like the matrix, is one of the most complete invariants of GVN.
 
-## Graph virtual neural network derivative
+## Derivative of Graph Virtual Neural Network
 
-When constructing the derivative of GVN, non-zero elements of the outdegree matrix are used. This is done as follows:
+When constructing the derivative of a GVN, non-zero elements of the outdegree matrix are used. This is done as follows:
 
-1. For each layer, a list is created, consisting of the outdegrees of each vertex. Thus, a certain sequence of lists is obtained.
-   
-2. Each outdegree from the current list is associated with the outdegrees from the next list. For example, the entry $(2,[1,2])$ means that the vertex with the outdegree of 2 generates two vertices with outdegrees of 1 and 2.
+1. For each layer, a list is created, consisting of the outdegrees of each vertex. This yields a sequence of lists.
+
+2. Each outdegree in the current list is associated with the outdegrees in the next list. For example, the entry $(2,[1,2])$ means that the vertex with the outdegree of 2 generates two vertices with outdegrees of 1 and 2.
 
 The resulting network stores information about how the adjacent edges are connected to each other in the original network.
 
