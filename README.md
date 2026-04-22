@@ -120,19 +120,19 @@ Graph.get_degree_matrix(example6().graph1,network)
 >>>
 ```
 
-The function `get_degree_dict` optimizes the storage of matrix indegrees and outdegrees while requiring the minimum possible RAM. There is a bug in the function (will be fixed soon).
+The function `get_degree_dict` optimizes the storage of matrix indegrees and outdegrees while requiring the minimum possible RAM.
 ```python
 >>>
 Graph.get_degree_dict(example6().graph1,network)
 {(0, 0): {0: [0, 2]},
- (0, 1): {0: [1, 0], 1: [0, 2], 2: [2, 0], 3: [0, 2], 4: [2, 0], 5: [0, 1]},
- (0, 2): {1: [1, 0], 2: [0, 2], 3: [2, 0], 4: [0, 2]},
- (1, 0): {0: [1, 0], 1: [0, 1], 2: [1, 0], 3: [0, 1], 4: [1, 0], 5: [0, 1], 6: [1, 0], 7: [0, 1]},
- (1, 1): {1: [2, 0], 2: [0, 4], 3: [4, 0], 4: [0, 4], 5: [4, 0], 6: [0, 2]},
- (1, 2): {2: [2, 0], 3: [0, 3], 4: [3, 0], 5: [0, 2]},
- (2, 0): {7: [2, 0]},
- (2, 1): {2: [1, 0], 3: [0, 2], 4: [2, 0], 5: [0, 2], 6: [2, 0], 7: [0, 1]},
- (2, 2): {3: [2, 0], 4: [0, 2], 5: [2, 0], 6: [0, 1]}}
+ (0, 1): {1: [1, 2], 3: [2, 2], 5: [2, 1]},
+ (0, 2): {2: [1, 2], 4: [2, 2]},
+ (1, 0): {1: [1, 1], 3: [1, 1], 5: [1, 1], 7: [1, 1]},
+ (1, 1): {2: [2, 4], 4: [4, 4], 6: [4, 2]},
+ (1, 2): {3: [2, 3], 5: [3, 2]},
+ (2, 0): {8: [2, 0]}}
+ (2, 1): {3: [1, 2], 5: [2, 2], 7: [2, 1]},
+ (2, 2): {4: [2, 2], 6: [2, 1]},
 >>>
 ```
 
