@@ -120,7 +120,7 @@ Graph.get_degree_matrix(example6().graph1,network)
 >>>
 ```
 
-The function `get_degree_dict` optimizes the storage of matrix indegrees and outdegrees while requiring the minimum possible RAM.
+The function `get_degree_dict` optimizes the storage of matrix indegrees and outdegrees while requiring the minimum possible RAM. There is a bug in the function (will be fixed soon).
 ```python
 >>>
 Graph.get_degree_dict(example6().graph1,network)
