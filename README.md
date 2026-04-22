@@ -136,6 +136,8 @@ Graph.get_degree_dict(example6().graph1,network)
 >>>
 ```
 
+The dictionary of indegrees and outdegrees, like the matrix, is one of the most complete invariants of GVN.
+
 ## Graph virtual neural network derivative
 
 When constructing the derivative of GVN, non-zero elements of the outdegree matrix are used. This is done as follows:
