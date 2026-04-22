@@ -1,6 +1,6 @@
 ⚠️ Coming soon: a major update with architecture improvements and a fast Python + Numba version for large graphs
 
-# Graph isomorphism
+# Graph Isomorphism
 
 This package have two basic functions:
 
@@ -47,7 +47,7 @@ True
 >>>
 ```
 
-# Symmetry in graphs and automorfism
+# Symmetry in Graphs and Automorfism
 
 Symmetry in graphs can be divided into three types:
 1. Simple (bilateral) symmetry. The graph has one axis of symmetry. The order of the automorphism group is $\ge2$.
@@ -66,8 +66,8 @@ The `find_automorphism()` function can be used to find arbitary automorphism sub
 >>>
 ```
 
-# Basic concepts
-## Graph virtual neural network
+# Basic Concepts
+## Graph Virtual Neural Network
 
 Graph virtual neural network (GVN) is a network focused on working with graphs. In networks of this type, the vertices of the graph are called neurons and the edges of the graph are called synaptic connections. This type of network can be one-way or two-way.
 
@@ -162,7 +162,7 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ![Virtual neural network derivative](./figure/Derivative.png)
 
-## Minimal one-way graph virtual neural network
+## Minimal One-Way Graph Virtual Neural Network
 
 When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits. The time complexity is $O(|V|+|E|)$.
 
