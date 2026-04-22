@@ -118,8 +118,10 @@ Graph.get_degree_matrix(example6().graph1,network)
  (2, 1): ([0, 0, 0, 1, 0, 2, 0, 2, 0], [0, 0, 0, 2, 0, 2, 0, 1, 0]),
  (2, 2): ([0, 0, 0, 0, 2, 0, 2, 0, 0], [0, 0, 0, 0, 2, 0, 1, 0, 0])}
 >>>
+```
 
 The function `get_degree_dict` optimizes the storage of matrix indegrees and outdegrees while requiring minimal RAM.
+```python
 >>>
 Graph.get_degree_dict(example6().graph1,network)
 {(0, 0): {0: [0, 2]},
