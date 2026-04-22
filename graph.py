@@ -170,20 +170,19 @@ class Graph:
 
     @staticmethod
     def get_degree_dict(network):
-        
         degree_dict = {}
         for layer_idx, layer in enumerate(network):
-            out_degrees = {src: len(dsts) for src, dsts in layer.items()}
-            in_degrees = {}
-            for dsts in layer.values():
-                for dst in dsts:
-                    in_degrees[dst] = in_degrees.get(dst, 0) + 1
-                    
-            for v in out_degrees.keys() | in_degrees.keys():
-                in_d = in_degrees.get(v, 0)
-                out_d = out_degrees.get(v, 0)
-                degree_dict.setdefault(v, {})[layer_idx] = [in_d, out_d]
+            for src, dsts in layer.items():
+                out_d = len(dsts)
                 
+                entry_src = degree_dict.setdefault(src, {})
+                entry_src.setdefault(layer_idx, [0, 0])[1] = out_d
+                
+                next_idx = layer_idx + 1
+                for dst in dsts:
+                    entry_dst = degree_dict.setdefault(dst, {})
+                    entry_dst.setdefault(next_idx, [0, 0])[0] += 1
+                    
         return degree_dict
     
     @staticmethod
