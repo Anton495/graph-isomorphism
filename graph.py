@@ -43,121 +43,148 @@ class Graph:
     
     @staticmethod
     def oneway_network(graph, start_vertex, depth=None, end_vertex=None):
-    
-        if depth == None: 
-            depth = len(graph)-1
+        
+        if depth is None:
+            depth = len(graph) - 1
 
         network = []
         neurons = [start_vertex]
+        exclude = {start_vertex, end_vertex} if end_vertex is not None else {start_vertex}
 
-        if start_vertex in graph[start_vertex]:
-            start_vertex = None
-        
-        for k in range(depth):
-            neurons = [neuron for neuron in neurons if neuron in graph]
-            network.append({key:[v for v in graph[key] if v != start_vertex and v != end_vertex] for key in neurons})
-        
-            neurons = list(network[k].values())
-            neurons = sum(neurons, [])
-        
-        return network
-    
-    @staticmethod
-    def twoway_network(graph, first_vertex, end_vertex):
-    
-        depth = len(graph)-1
-        n = depth//2 if depth//2 == depth/2 else depth//2+1
-    
-        virtual_network_1 = Graph.oneway_network(graph, first_vertex, n, end_vertex)
-    
-        if n//2 == n/2:
-            network_2 = Graph.oneway_network(graph, end_vertex, n, first_vertex)
-        else:
-            network_2 = Graph.oneway_network(graph, end_vertex, n-1, first_vertex)
-        
-        network_2 = list(reversed(network_2))
-    
-        virtual_network_2 = []
+        for _ in range(depth):
+            valid_neurons = [n for n in neurons if n in graph]
+            if not valid_neurons:
+                break
 
-        for k in range(len(network_2)):
-            new_layer = {}
-            for key,values in network_2[k].items():
-                for value in values:   
-                    new_layer.setdefault(value,[]).append(key)
-
-            virtual_network_2.append(new_layer)
-
-        return virtual_network_1 + virtual_network_2
-    
-    @staticmethod
-    def minimal_oneway_network(graph, start_vertex, depth=None):
-
-        if depth == None: 
-            depth = len(graph)-1
-
-        edges = set()
-        network = []
-        neurons = [start_vertex]
-
-        for k in range(depth):
-            neurons = [neuron for neuron in neurons if neuron in graph]
-    
             layer = {}
-            new_edges = set()
-            for key in neurons:
-                values = []
-                for value in graph[key]:
-                    edge = tuple(sorted([key,value]))
-                    if edge not in edges:
-                        values.append(value)
-                        new_edges.add(edge)
-        
-                if values != []:
-                    layer[key] = values
+            next_neurons = []
 
-            n = len(edges)
-            edges = edges.union(new_edges)
-            
-            if len(edges) == n:
+            for key in valid_neurons:
+                neighbors = []
+                for v in graph[key]:
+                    if v not in exclude:
+                        neighbors.append(v)
+                        next_neurons.append(v)
+                
+                if neighbors:
+                    layer[key] = neighbors
+
+            if not layer:
                 break
 
             network.append(layer)
+            neurons = next_neurons
 
-            neurons = list(network[k].values())
-            neurons = sum(neurons, [])
-            
         return network
-    
+
     @staticmethod
-    def get_degree_matrix(graph,network):
+    def twoway_network(graph, first_vertex, end_vertex):
         
-        keys = set(graph.keys())
-        values = set(sum(graph.values(),[]))
-        vertices = sorted(list(keys|values))
+        max_depth = len(graph) - 1
+        half_depth = (max_depth + 1) // 2
 
-        N = len(vertices)  
+        forward = Graph.oneway_network(graph, first_vertex, half_depth, end_vertex)
+
+        reverse_depth = half_depth if max_depth % 2 == 0 else half_depth - 1
+        backward = Graph.oneway_network(graph, end_vertex, reverse_depth, first_vertex)
+
+        inverted_backward = []
+        for layer in reversed(backward):
+            inverted = {}
+            for src, targets in layer.items():
+                for tgt in targets:
+                    inverted.setdefault(tgt, []).append(src)
+            inverted_backward.append(inverted)
+
+        return forward + inverted_backward
+
+    @staticmethod
+    def minimal_oneway_network(graph, start_vertex, depth=None):
+        
+        if depth is None:
+            depth = len(graph) - 1
+    
+        edges = set()
+        network = []
+        neurons = [start_vertex]
+    
+        for _ in range(depth):
+            if not neurons:
+                break
+    
+            layer = {}
+            next_neurons = []
+    
+            for key in neurons:
+                if key not in graph:
+                    continue
+                    
+                values = []
+                for value in graph[key]:
+                    edge = (key, value) if key < value else (value, key)
+                    if edge not in edges:
+                        values.append(value)
+                        next_neurons.append(value)
+                        edges.add(edge)
+    
+                if values:
+                    layer[key] = values
+    
+            if not layer:
+                break
+    
+            network.append(layer)
+            neurons = next_neurons
+    
+        return network
+
+    @staticmethod
+    def get_degree_matrix(network):
+        
         depth = len(network)
-
-        degree_matrix = []
-        for n in range(N):
-            degree_matrix.append([[0]*(depth+1),[0]*(depth+1)])
+        in_degrees = {}
+        out_degrees = {}
+    
+        for n, layer in enumerate(network):
+            for src, dsts in layer.items():
+                out_degrees.setdefault(src, {})[n] = len(dsts)
                 
-        for n in range(depth):
-            values = sum(network[n].values(),[])
-            for m in range(N):
-                if vertices[m] in values:
-                    degree_matrix[m][0][n+1] = values.count(vertices[m])
-                if vertices[m] in network[n]:
-                    degree_matrix[m][1][n] = len(network[n][vertices[m]])
-
-        for n in range(N):
-            degree_matrix[n] = tuple(degree_matrix[n])
+                next_n = n + 1
+                for dst in dsts:
+                    in_dict = in_degrees.setdefault(dst, {})
+                    in_dict[next_n] = in_dict.get(next_n, 0) + 1
+    
+        degree_matrix = {}
+        for v in in_degrees.keys() | out_degrees.keys():
+            in_list = [0] * (depth + 1)
+            out_list = [0] * (depth + 1)
             
-        degree_matrix_dict = {}
-        for n in range(N):
-            degree_matrix_dict[vertices[n]] = degree_matrix[n]
+            for idx, cnt in in_degrees.get(v, {}).items():
+                in_list[idx] = cnt
+            for idx, cnt in out_degrees.get(v, {}).items():
+                out_list[idx] = cnt
+                
+            degree_matrix[v] = (in_list, out_list)
+    
+        return degree_matrix
+
+    @staticmethod
+    def get_degree_dict(network):
         
-        return degree_matrix_dict
+        degree_dict = {}
+        for layer_idx, layer in enumerate(network):
+            out_degrees = {src: len(dsts) for src, dsts in layer.items()}
+            in_degrees = {}
+            for dsts in layer.values():
+                for dst in dsts:
+                    in_degrees[dst] = in_degrees.get(dst, 0) + 1
+                    
+            for v in out_degrees.keys() | in_degrees.keys():
+                in_d = in_degrees.get(v, 0)
+                out_d = out_degrees.get(v, 0)
+                degree_dict.setdefault(v, {})[layer_idx] = [in_d, out_d]
+                
+        return degree_dict
     
     @staticmethod
     def network_derivative(network):
