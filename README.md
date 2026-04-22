@@ -118,6 +118,20 @@ Graph.get_degree_matrix(example6().graph1,network)
  (2, 1): ([0, 0, 0, 1, 0, 2, 0, 2, 0], [0, 0, 0, 2, 0, 2, 0, 1, 0]),
  (2, 2): ([0, 0, 0, 0, 2, 0, 2, 0, 0], [0, 0, 0, 0, 2, 0, 1, 0, 0])}
 >>>
+
+The function `get_degree_dict` optimizes the storage of matrix indegrees and outdegrees while requiring minimal RAM.
+>>>
+Graph.get_degree_dict(example6().graph1,network)
+{(0, 0): {0: [0, 2]},
+ (0, 1): {0: [1, 0], 1: [0, 2], 2: [2, 0], 3: [0, 2], 4: [2, 0], 5: [0, 1]},
+ (0, 2): {1: [1, 0], 2: [0, 2], 3: [2, 0], 4: [0, 2]},
+ (1, 0): {0: [1, 0], 1: [0, 1], 2: [1, 0], 3: [0, 1], 4: [1, 0], 5: [0, 1], 6: [1, 0], 7: [0, 1]},
+ (1, 1): {1: [2, 0], 2: [0, 4], 3: [4, 0], 4: [0, 4], 5: [4, 0], 6: [0, 2]},
+ (1, 2): {2: [2, 0], 3: [0, 3], 4: [3, 0], 5: [0, 2]},
+ (2, 0): {7: [2, 0]},
+ (2, 1): {2: [1, 0], 3: [0, 2], 4: [2, 0], 5: [0, 2], 6: [2, 0], 7: [0, 1]},
+ (2, 2): {3: [2, 0], 4: [0, 2], 5: [2, 0], 6: [0, 1]}}
+>>>
 ```
 
 ## Graph virtual neural network derivative
@@ -158,7 +172,7 @@ When constructing each layer in a network of this type, the edges traversed in a
 >>> cube().test_isomorphism()
 True
 >>> iso = cube().find_orbits()
->>> cube().find_automorfism(iso)
+>>> cube().find_automorphism(iso)
 [('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
 ('e~', 'f~', 'g~', 'h~', 'a~', 'b~', 'c~', 'd~')]
 ```
