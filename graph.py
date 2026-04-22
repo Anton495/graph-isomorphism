@@ -308,43 +308,43 @@ class Graph:
                 
         return orb
     
-    def find_automorphism(self,orb):
+    def find_automorphism(self,orbits):
         
-        G = tuple(k[0] for k in orb)
-        N = len(G)
+        vertices = tuple(orbit[0] for orbit in orbits)
+        num_vertices = len(vertices)
         
-        A = [None]*N
-        A_test = [0]*N
-        for n in range(N):
-            if type(orb[n][1]) == str:
-                A[n] = orb[n][1]
-                A_test[n] = 1 
+        mapping = [None]*num_vertices
+        in_processing = [0]*num_vertices
+        for n in range(num_vertices):
+            if type(orbits[n][1]) == str:
+                mapping[n] = orbits[n][1]
+                in_processing[n] = 1 
         
-        if None not in A:
-            return [G,tuple(A)]
+        if None not in mapping:
+            return [vertices,tuple(mapping)]
         
-        for n in range(N):
-            if type(orb[n][1]) != str and len(list(orb[n][1])) == 2:
+        for n in range(num_vertices):
+            if type(orbits[n][1]) != str and len(list(orbits[n][1])) == 2:
                 break
         
-        A[n] = choice(list(orb[n][1]))
-        A_test[n] = 1
+        mapping[n] = choice(list(orbits[n][1]))
+        in_processing[n] = 1
         
-        for n in range(N):
-            i = A_test.index(1)
-            vertices1 = self.graph1[G[i]]
-            vertices2 = self.graph2[A[i]]
-            shuffle(vertices1)
-            shuffle(vertices2)
+        for n in range(num_vertices):
+            i = in_processing.index(1)
+            neighbors1 = self.graph1[vertices[i]]
+            neighbors2 = self.graph2[mapping[i]]
+            shuffle(neighbors1)
+            shuffle(neighbors2)
         
-            for v1 in vertices1:
-                ind = G.index(v1)
+            for nb1 in neighbors1:
+                ind = vertices.index(nb1)
             
-                for v2 in vertices2:
-                    if A[ind] == None and v2 not in A and v2 in orb[ind][1]:
-                        A[ind] = v2
-                        A_test[ind] = 1
-                
-            A_test[i] = 0
+                for nb2 in neighbors2:
+                    if mapping[ind] == None and nb2 not in mapping and nb2 in orbits[ind][1]:
+                        mapping[ind] = nb2
+                        in_processing[ind] = 1
+            
+            in_processing[i] = 0
         
-        return [G,tuple(A)]
+        return [vertices,tuple(mapping)]
