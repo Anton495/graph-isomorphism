@@ -103,39 +103,40 @@ class Graph:
         
         if depth is None:
             depth = len(graph) - 1
-    
+            
         edges = set()
         network = []
         neurons = [start_vertex]
-    
+        
         for _ in range(depth):
             if not neurons:
                 break
-    
             layer = {}
             next_neurons = []
-    
+            new_edges = set()
+            
             for key in neurons:
                 if key not in graph:
                     continue
-                    
                 values = []
+                
                 for value in graph[key]:
                     edge = (key, value) if key < value else (value, key)
                     if edge not in edges:
                         values.append(value)
                         next_neurons.append(value)
-                        edges.add(edge)
-    
+                        new_edges.add(edge)
+                        
                 if values:
                     layer[key] = values
-    
+                    
             if not layer:
                 break
-    
+            
+            edges.update(new_edges)
             network.append(layer)
             neurons = next_neurons
-    
+            
         return network
 
     @staticmethod
