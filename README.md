@@ -102,6 +102,26 @@ In general, the complexity will not exceed $O(|V|^3)$.
 
 ![Virtual neural network](./figure/Network.png)
 
+## Minimal One-Way Graph Virtual Neural Network
+
+When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits. The time complexity is $O(|V|+|E|)$.
+
+```python
+>>> Graph.minimal_oneway_network(cube().graph1,'a')
+[{'a': ['b', 'd', 'e']},
+ {'b': ['c', 'f'], 'd': ['c', 'h'], 'e': ['f', 'h']},
+ {'c': ['g'], 'f': ['g'], 'h': ['g']}]
+>>> cube().test_isomorphism()
+True
+>>> iso = cube().find_orbits()
+>>> cube().find_automorphism(iso)
+[('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
+('e~', 'f~', 'g~', 'h~', 'a~', 'b~', 'c~', 'd~')]
+```
+
+![Minimal network](./figure/Minimal_network.png)
+
+# GVN invariants
 ## Matrix Indegrees and Outdegrees
 
 One of the key concepts of GVN is the matrix indegrees and outdegrees. Each row in this matrix corresponds to its own vertex. Furthermore, its rows do not have a fixed association with indices.
@@ -164,24 +184,7 @@ As an example, consider two one-way virtual neural networks and its derivative.
 
 ![Virtual neural network derivative](./figure/Derivative.png)
 
-## Minimal One-Way Graph Virtual Neural Network
 
-When constructing each layer in a network of this type, the edges traversed in all previous layers are not used. However, the same edge can be traversed in both directions in each layer. This is necessary in order to preserve information about the symmetry of the graph. It allows us to significantly speed up the testing of graphs for isomorphism and finding graph vertices orbits. The time complexity is $O(|V|+|E|)$.
-
-```python
->>> Graph.minimal_oneway_network(cube().graph1,'a')
-[{'a': ['b', 'd', 'e']},
- {'b': ['c', 'f'], 'd': ['c', 'h'], 'e': ['f', 'h']},
- {'c': ['g'], 'f': ['g'], 'h': ['g']}]
->>> cube().test_isomorphism()
-True
->>> iso = cube().find_orbits()
->>> cube().find_automorphism(iso)
-[('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
-('e~', 'f~', 'g~', 'h~', 'a~', 'b~', 'c~', 'd~')]
-```
-
-![Minimal network](./figure/Minimal_network.png)
 
 # References
 
