@@ -1,4 +1,4 @@
-⚠️ Coming soon: a major update with architecture improvements and a fast Python + Numba version for large graphs
+⚠️ Coming soon: a major update with architecture improvements and a fast Python + Numba (CSR + njit) version for large graphs, along with large‑scale algorithm testing.
 
 # Graph Isomorphism
 
