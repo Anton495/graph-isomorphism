@@ -23,8 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 '''
-
-from random import choice, shuffle
+from collections import Counter, defaultdict, deque
+from random import choice, shuffle, random
 
 class Graph:
     
@@ -212,128 +212,378 @@ class Graph:
             network_der.append(sorted(layer))
         
         return network_der
+
+    @staticmethod
+    def compute_bidirectional_degree_profiles(network):
+
+        node_in = defaultdict(int)
+        node_out = defaultdict(int)
+
+        for layer in network:
+            for src, targets in layer.items():
+                unique_targets = set(targets)
+                node_out[src] += len(unique_targets)
+                for t in unique_targets:
+                    node_in[t] += 1
+
+        deg = lambda n: (node_in[n], node_out[n])
+
+        forward_profiles = []
+        reverse_profiles = []
+
+        for layer in network:
+            target_to_sources = defaultdict(set)
+            for src, targets in layer.items():
+                for t in set(targets):
+                    target_to_sources[t].add(src)
+
+            fwd_layer = []
+            for src, targets in layer.items():
+                unique_targets = set(targets)
+                fwd_layer.append(
+                    (deg(src), sorted(deg(t) for t in unique_targets)))
+            fwd_layer.sort()
+            forward_profiles.append(fwd_layer)
+
+            rev_layer = []
+            for t, sources in target_to_sources.items():
+                rev_layer.append(
+                    (deg(t), sorted(deg(s) for s in sources)))
+            rev_layer.sort()
+            reverse_profiles.append(rev_layer)
+
+        return forward_profiles, reverse_profiles
     
-    def part_test_isomorphism(self,v1,depth,minimal=True):
-        
-        vertices2 = list(self.graph2.keys())
-        
-        if minimal == True:
-            network_1 = Graph.minimal_oneway_network(self.graph1, v1, depth)
-        else:
-            network_1 = Graph.oneway_network(self.graph1, v1, depth)
-        
-        der_network_1 = Graph.network_derivative(network_1)
-        
-        N = len(self.graph1[v1])
-        new_vertices2 = []
-        for v2 in vertices2:
-            if N == len(self.graph2[v2]):
-                
-                if minimal == True:
-                    network_2 = Graph.minimal_oneway_network(self.graph2, v2, depth)
-                else:
-                    network_2 = Graph.oneway_network(self.graph2, v2, depth)
-                    
-                der_network_2 = Graph.network_derivative(network_2)
-        
-                if der_network_1==der_network_2:
-                    new_vertices2.append(v2)
-    
-        return new_vertices2
-    
-    def test_isomorphism(self,minimal=True,depth=2):
+    @staticmethod
+    def find_dead_end_branches(network):
+
+        out_deg = {}
+        in_deg = {}
+        layer_of = {}
+        rev_graph = defaultdict(list)
+
+        for i, layer_dict in enumerate(network):
+            for src, dsts in layer_dict.items():
+                out_deg[src] = len(dsts)
+                layer_of[src] = i
+                for dst in dsts:
+                    rev_graph[dst].append(src)
+
+        all_vertices = set(out_deg.keys())
+        for dst, srcs in rev_graph.items():
+            all_vertices.add(dst)
+
+        for v in all_vertices:
+            if v not in out_deg:
+                out_deg[v] = 0
+
+        for v in all_vertices:
+            srcs = rev_graph.get(v, [])
+            v_layer = layer_of.get(v)
+            in_deg[v] = len([s for s in srcs
+                             if layer_of.get(s) != v_layer])
+
+        leaves = [v for v in all_vertices
+                  if in_deg[v] == 1 and out_deg[v] == 0]
+
+        result = {}
+        for leaf in leaves:
+            branch = {}
+            curr = leaf
+
+            while True:
+                curr_layer = layer_of.get(curr)
+                parents = [p for p in rev_graph.get(curr, [])
+                           if layer_of.get(p) != curr_layer]
+
+                if not parents:
+                    break
+
+                parent = parents[0]
+                parent_in = in_deg[parent]
+                parent_out = out_deg[parent]
+                layer = layer_of[parent]
+
+                branch[layer] = (parent_in, parent_out)
+
+                if parent_in != 1:
+                    break
+
+                curr = parent
+
+            result[leaf] = branch
+
+        return result
+
+    @staticmethod
+    def normalize_dead_end_branches(dead_ends):
+
+        return sorted(
+            tuple(sorted(branch.items()))
+            for branch in dead_ends.values()
+        )
+
+    @staticmethod
+    def find_loops(network):
+
+        out_edges = {}
+        in_edges = defaultdict(list)
+        layer_of = {}
+
+        for layer_idx, layer_dict in enumerate(network):
+            for src, dsts in layer_dict.items():
+                out_edges[src] = dsts
+                layer_of[src] = layer_idx
+                for dst in dsts:
+                    in_edges[dst].append(src)
+
+        loops_found = []
+        for a, dsts_a in out_edges.items():
+            for b in dsts_a:
+                if b in out_edges and a in out_edges[b]:
+                    if a < b:
+                        layer_close = layer_of[a]
+
+                        visited_a = {a}
+                        visited_b = {b}
+                        queue_a = deque([a])
+                        queue_b = deque([b])
+                        common = None
+
+                        while queue_a or queue_b:
+                            if queue_a and not common:
+                                next_a = []
+                                for node in queue_a:
+                                    for parent in in_edges.get(node, []):
+                                        if node == a and parent == b:
+                                            continue
+                                        if parent in visited_a:
+                                            continue
+                                        visited_a.add(parent)
+                                        next_a.append(parent)
+                                        if parent in visited_b:
+                                            common = parent
+                                            break
+                                    if common:
+                                        break
+                                queue_a = deque(next_a)
+
+                            if common:
+                                break
+
+                            if queue_b and not common:
+                                next_b = []
+                                for node in queue_b:
+                                    for parent in in_edges.get(node, []):
+                                        if node == b and parent == a:
+                                            continue
+                                        if parent in visited_b:
+                                            continue
+                                        visited_b.add(parent)
+                                        next_b.append(parent)
+                                        if parent in visited_a:
+                                            common = parent
+                                            break
+                                    if common:
+                                        break
+                                queue_b = deque(next_b)
+
+                        if common is not None:
+                            layer_start = layer_of[common]
+                            loops_found.append(f"{layer_close}{layer_start}")
+
+        loops_found.sort()
+        return loops_found
+
+    def test_is_isomorphic(self):
 
         if len(self.graph1) != len(self.graph2):
-            return False        
-
-        vertices1 = list(self.graph1.keys())
-        
-        if depth == 0:
-            vertices2 = list(self.graph2.keys())
-        else:
-            vertices2 = self.part_test_isomorphism(vertices1[0],depth,minimal)
-        
-        if vertices2 == []:
             return False
-        
-        if minimal == True:
-            network_1 = Graph.minimal_oneway_network(self.graph1, vertices1[0])
-        else:
-            network_1 = Graph.oneway_network(self.graph1, vertices1[0])
-        
-        der_network_1 = Graph.network_derivative(network_1)
-        
-        for v2 in vertices2:
-                
-            if minimal == True:
-                network_2 = Graph.minimal_oneway_network(self.graph2, v2)
-            else:
-                network_2 = Graph.oneway_network(self.graph2, v2)
-                    
-            der_network_2 = Graph.network_derivative(network_2)
-        
-            if der_network_1==der_network_2:
-                return True
-    
-        return False
-    
-    def find_orbits(self,minimal=True,depth=2):
-        
-        if len(self.graph1) != len(self.graph2):
-            return None
-        
+
         vertices1 = list(self.graph1.keys())
-        
-        if depth == 0:
-            vertices2 = list(self.graph2.keys())
-        
-        orb = []
+        vertices2 = list(self.graph2.keys())
+
+        if not vertices1 or not vertices2:
+            return False
+
+        e1 = sum(len(vs) for vs in self.graph1.values())
+        e2 = sum(len(vs) for vs in self.graph2.values())
+        if e1 != e2:
+            return False
+
+        deg_groups_1 = {}
+        for v in self.graph1:
+            d = len(self.graph1.get(v, []))
+            deg_groups_1.setdefault(d, []).append(v)
+
+        deg_groups_2 = {}
+        for v in self.graph2:
+            d = len(self.graph2.get(v, []))
+            deg_groups_2.setdefault(d, []).append(v)
+
+        deg_dist_1 = {d: len(vs) for d, vs in deg_groups_1.items()}
+        deg_dist_2 = {d: len(vs) for d, vs in deg_groups_2.items()}
+
+        if deg_dist_1 != deg_dist_2:
+            return False
+
+        ref_deg = min(deg_groups_1, key=lambda d: len(deg_groups_1[d]))
+        ref_vertex = random.choice(deg_groups_1[ref_deg])
+
+        candidates = deg_groups_2.get(ref_deg, [])
+
+        net1 = Graph.minimal_oneway_network(self.graph1, ref_vertex)
+        bdp1 = Graph.compute_bidirectional_degree_profiles(net1)
+        deb1 = Graph.normalize_dead_end_branches(
+            Graph.find_dead_end_branches(net1))
+        loops1 = Graph.find_loops(net1)
+
+        for v2 in candidates:
+            net2 = Graph.minimal_oneway_network(self.graph2, v2)
+
+            bdp2 = Graph.compute_bidirectional_degree_profiles(net2)
+            if bdp1 != bdp2:
+                continue
+
+            deb2 = Graph.normalize_dead_end_branches(
+                Graph.find_dead_end_branches(net2))
+            if deb1 != deb2:
+                continue
+
+            loops2 = Graph.find_loops(net2)
+            if loops1 == loops2:
+                return True
+
+        return False
+
+    @staticmethod
+    def _has_perfect_matching(orbits, vertices2):
+
+        n = len(orbits)
+        if n != len(vertices2):
+            return False
+
+        v2_to_idx = {v: i for i, v in enumerate(vertices2)}
+
+        adj = []
+        for v1, s2 in orbits:
+            targets = s2 if isinstance(s2, set) else {s2}
+            neighbors = [v2_to_idx[v] for v in targets if v in v2_to_idx]
+            if not neighbors:
+                return False
+            adj.append(neighbors)
+
+        match_r = [-1] * n
+
+        def bpm(u, seen):
+            for v in adj[u]:
+                if not seen[v]:
+                    seen[v] = True
+                    if match_r[v] == -1 or bpm(match_r[v], seen):
+                        match_r[v] = u
+                        return True
+            return False
+
+        for u in range(n):
+            seen = [False] * n
+            if not bpm(u, seen):
+                return False
+        return True
+
+    def test_find_orbits(self):
+
+        nodes_count1 = len(self.graph1)
+        nodes_count2 = len(self.graph2)
+        nodes_count_match = nodes_count1 == nodes_count2
+
+        edges_count1 = sum(len(v1) for v1 in self.graph1.values())
+        edges_count2 = sum(len(v2) for v2 in self.graph2.values())
+        edges_count_match = edges_count1 == edges_count2
+
+        degree_sequence1 = sorted(len(nb1) for nb1 in self.graph1.values())
+        degree_sequence2 = sorted(len(nb2) for nb2 in self.graph2.values())
+        degrees_match = degree_sequence1 == degree_sequence2
+
+        if not (nodes_count_match and edges_count_match and degrees_match):
+            return None
+
+        vertices1 = list(self.graph1.keys())
+        vertices2 = list(self.graph2.keys())
+
+        g2_bdp = {}
+        g2_net = {}
+        for v2 in vertices2:
+            net2 = Graph.minimal_oneway_network(self.graph2, v2)
+            g2_net[v2] = net2
+            g2_bdp[v2] = Graph.compute_bidirectional_degree_profiles(net2)
+
+        g2_deb = {}
+
+        def get_deb(v2):
+            if v2 not in g2_deb:
+                g2_deb[v2] = Graph.normalize_dead_end_branches(
+                    Graph.find_dead_end_branches(g2_net[v2]))
+            return g2_deb[v2]
+
+        g2_loops = {}
+
+        def get_loops(v2):
+            if v2 not in g2_loops:
+                g2_loops[v2] = Graph.find_loops(g2_net[v2])
+            return g2_loops[v2]
+
+        orbits = []
         for v1 in vertices1:
-            
-            if depth != 0:
-                vertices2 = self.part_test_isomorphism(v1,depth,minimal)
-            
-            if vertices2 == []:
-                return None
-            
-            if minimal == True:    
-                network_1 = Graph.minimal_oneway_network(self.graph1, v1)
-            else:
-                network_1 = Graph.oneway_network(self.graph1, v1)
-            
-            der_network_1 = Graph.network_derivative(network_1)
-            
+
+            net1 = Graph.minimal_oneway_network(self.graph1, v1)
+            bdp1 = Graph.compute_bidirectional_degree_profiles(net1)
+            deb1 = Graph.normalize_dead_end_branches(
+                Graph.find_dead_end_branches(net1))
+            loops1 = Graph.find_loops(net1)
+
+            d1 = len(self.graph1[v1])
+            v1_matched = False
+
             for v2 in vertices2:
-                    
-                if minimal == True:
-                    network_2 = Graph.minimal_oneway_network(self.graph2, v2)
-                else:
-                    network_2 = Graph.oneway_network(self.graph2, v2)
-                        
-                der_network_2 = Graph.network_derivative(network_2)
-        
-                if der_network_1==der_network_2:
-                        
-                    row = [row[0] for row in orb]
+
+                if len(self.graph2[v2]) != d1:
+                    continue
+
+                bdp2 = g2_bdp[v2]
+                if bdp1 != bdp2:
+                    continue
+
+                deb2 = get_deb(v2)
+                if deb1 != deb2:
+                    continue
+
+                loops2 = get_loops(v2)
+                if loops1 == loops2:
+
+                    row = [row[0] for row in orbits]
                     if v1 in row:
                         ind = row.index(v1)
-                        if type(orb[ind][1]) != list:
-                            orb[ind][1] = [orb[ind][1]]
-                        
-                        orb[ind][1].append(v2)
+                        if type(orbits[ind][1]) != list:
+                            orbits[ind][1] = [orbits[ind][1]]
+
+                        orbits[ind][1].append(v2)
                     else:
-                        orb.append([v1,v2])  
-            
-            if orb == []:
+                        orbits.append([v1, v2])
+                    v1_matched = True
+
+            if not v1_matched:
                 return None
-        
-        for k in range(len(orb)):
-            if type(orb[k][1]) == list:
-                orb[k] = (orb[k][0],set(orb[k][1]))
+
+        for k in range(len(orbits)):
+            if type(orbits[k][1]) == list:
+                orbits[k] = (orbits[k][0], set(orbits[k][1]))
             else:
-                orb[k] = (orb[k][0],orb[k][1])
-                
-        return orb
+                orbits[k] = (orbits[k][0], orbits[k][1])
+
+        if not Graph._has_perfect_matching(orbits, vertices2):
+            return None
+
+        return orbits
     
     def find_automorphism(self,orbits):
         
