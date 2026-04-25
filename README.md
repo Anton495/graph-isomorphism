@@ -4,11 +4,11 @@
 
 This package have two basic functions:
 
-1. The `test_isomorphism(minimal=True,depth=2)` function can be used to test graphs for isomorphism. Outputs `True` or `False`.
+1. The `test_is_ismorphic()` function can be used to test graphs for isomorphism. Outputs `True` or `False`.
 
-2. The `find_orbits(minimal=True,depth=2)` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
+2. The `test_find_orbits()` function can be used to find set of isomorphic vertices for each vertex of the graph. For non-symmetric graphs, outputs isomorphism substitution.
 
-Runtime depends polynomially on the number of vertices and edges. In the first case the complexity of the algorithm is $O(|V|^{c}\cdot(|V|+|E|))$, in the second case it is $O(|V|^{1+c}\cdot(|V|+|E|))$, where $0<c<1$, $|V|$ is the number of vertices and $|E|$ is the number of edges in the graph. With the correct choice of `depth`, the parameter $c$ is close to zero. In most cases, it is sufficient to choose a relatively small `depth`. Here `depth>=2`.
+Runtime depends polynomially on the number of vertices and edges. In the first case the complexity of the algorithm is $O(|V|\cdot(|V|+|E|))$, in the second case it is $O(|V|^{2}\cdot(|V|+|E|))$, where $|V|$ is the number of vertices and $|E|$ is the number of edges in the graph.
 
 Directed graphs and pseudomultigraphs are supported.
 
@@ -22,7 +22,7 @@ Run examples.py for usage in an interactive session.
 >>> g1 = {'1': ['2'],'2': ['1','3'], '3': ['2']}
 >>> g2 = {'a': ['b','c'],'b': ['a','c'], 'c': ['a','b']}
 >>> example = Graph(g1,g2)
->>> example.test_isomorphism()
+>>> example.test_is_ismorphic()
 False
 >>> example1().graph1
 {'1': ['2', '3'],
@@ -36,9 +36,9 @@ False
  'c': ['a','b','d','e'],
  'd': ['b','c','e'],
  'e': ['b','c','d']}
->>> example1().test_isomorphism()
+>>> example1().test_is_ismorphic()
 True
->>> example1().find_orbits()
+>>> example1().test_find_orbits()
 [('1', 'a'),
  ('2', {'b', 'c'}),
  ('3', {'b', 'c'}),
@@ -111,9 +111,9 @@ When constructing each layer in a network of this type, the edges traversed in a
 [{'a': ['b', 'd', 'e']},
  {'b': ['c', 'f'], 'd': ['c', 'h'], 'e': ['f', 'h']},
  {'c': ['g'], 'f': ['g'], 'h': ['g']}]
->>> cube().test_isomorphism()
+>>> cube().test_is_ismorphic()
 True
->>> iso = cube().find_orbits()
+>>> iso = cube().test_find_orbits()
 >>> cube().find_automorphism(iso)
 [('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
 ('e~', 'f~', 'g~', 'h~', 'a~', 'b~', 'c~', 'd~')]
