@@ -4,9 +4,9 @@
 
 Connected graphs from the [BDM collection](https://users.cecs.anu.edu.au/~bdm/data/graphs.html) were tested.  
 All graphs in a set are pairwise non-isomorphic. Before testing, graphs were grouped by trivial invariants:  
-- number of vertices,  
-- number of edges,  
-- degree sequence.
+- number of vertices  
+- number of edges  
+- degree sequence
 
 **False positive pair** – a pair of graphs for which the algorithm incorrectly determines isomorphism on at least one pair of vertices. For each pair of graphs, all vertex pairs are checked.
 
