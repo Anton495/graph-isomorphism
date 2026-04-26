@@ -324,7 +324,7 @@ class Graph:
         )
 
     @staticmethod
-    def find_loops(network):
+    def find_loops_old(network):
 
         out_edges = {}
         in_edges = defaultdict(list)
@@ -395,6 +395,75 @@ class Graph:
         loops_found.sort()
         return loops_found
 
+    @staticmethod
+    def inverse_network(network):
+        inverted_network = []
+        for layer in reversed(network):
+            inv_layer = {}
+            for key, values in layer.items():
+                for val in values:
+                    if val not in inv_layer:
+                        inv_layer[val] = []
+                    inv_layer[val].append(key)
+            inverted_network.append(inv_layer)
+        
+        return inverted_network
+
+    @staticmethod
+    def find_loops(network):
+        
+        inv_net = Graph.inverse_network(network)
+        depth = len(inv_net)
+        
+        result = []
+        for n in range(depth):
+        
+            parent_groups = []
+            for k, nbs in inv_net[n].items():
+                if len(nbs) >= 2:
+                    parent_groups.append(tuple(nbs))
+            
+                for nb in nbs:
+                    if nb in inv_net[n] and k in inv_net[n][nb]:
+                        pair = tuple(sorted((k,nb)))
+                        if pair not in parent_groups:
+                            parent_groups.append(pair)
+            
+            for m in range(len(parent_groups)):
+            
+                start_groups = [[v] for v in parent_groups[m]]
+                for j in range(n + 1, depth):
+                    loop = str(n)
+                    new_group = []
+                    
+                    for group in start_groups:
+                        current_union = set()
+                        for key in group:
+                            val = inv_net[j].get(key, [])
+                            current_union.update(val)
+                        new_group.append(list(current_union))
+                    
+                    seen_elements = set()
+                    intersections_count = 0
+                    
+                    for g in new_group:
+                        current_set = set(g)
+                        if not current_set.isdisjoint(seen_elements):
+                            intersections_count += 1
+                        
+                        seen_elements.update(current_set)
+                    
+                    if intersections_count > 0:
+                        for _ in range(intersections_count):
+                            loop += str(j)
+                        
+                        result.append(loop)
+                        break  
+                    else:
+                        start_groups = new_group
+
+        return sorted(result)
+    
     def test_is_isomorphic(self):
 
         if len(self.graph1) != len(self.graph2):
