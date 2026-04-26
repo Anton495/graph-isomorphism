@@ -1,5 +1,36 @@
 ⚠️ Coming soon: a major update with architecture improvements and a fast Python + Numba (CSR + njit) version for large graphs, along with large‑scale algorithm testing.
 
+# Isomorphism Testing Results for Connected Graphs
+
+Connected graphs from the [BDM collection](https://users.cecs.anu.edu.au/~bdm/data/graphs.html) were tested.  
+All graphs in a set are pairwise non-isomorphic. Before testing, graphs were grouped by trivial invariants:  
+- number of vertices,  
+- number of edges,  
+- degree sequence.
+
+**False positive pair** – a pair of graphs for which the algorithm incorrectly determines isomorphism on at least one pair of vertices. For each pair of graphs, all vertex pairs are checked.
+
+The table includes sets:
+- `ge*` – graphs with a fixed number of edges (8 to 13);
+- `graph*` – graphs with a fixed number of vertices (6 to 9).
+
+For sets with **8 or fewer edges** and **6 or fewer vertices**, no false positives were recorded.
+
+## Results
+
+| File | Total pairs | False positives | % false positives |
+|------|-------------|----------------|-------------------|
+| ge8c.g6 | 776 | 0 | 0.0000% |
+| ge9c.g6 | 6 055 | 2 | 0.0330% |
+| ge10c.g6 | 52 148 | 23 | 0.0441% |
+| ge11c.g6 | 498 917 | 190 | 0.0381% |
+| ge12c.g6 | 5 311 679 | 1 315 | 0.0248% |
+| ge13c.g6 | 62 412 197 | no data | — |
+| graph6c.g6 | 75 | 0 | 0.0000% |
+| graph7c.g6 | 3 038 | 10 | 0.3292% |
+| graph8c.g6 | 293 364 | 749 | 0.2553% |
+| graph9c.g6 | 90 277 837 | no data | — |
+
 # Graph Isomorphism
 
 This package have two basic functions:
@@ -10,7 +41,7 @@ This package have two basic functions:
 
 Runtime depends polynomially on the number of vertices and edges. In the first case the complexity of the algorithm is $O(|V|\cdot(|V|+|E|))$, in the second case it is $O(|V|^{2}\cdot(|V|+|E|))$, where $|V|$ is the number of vertices and $|E|$ is the number of edges in the graph.
 
-Directed graphs and pseudomultigraphs are supported.
+Only undirected graphs.
 
 The module has been tested to work on Python 3.12.7.
 
