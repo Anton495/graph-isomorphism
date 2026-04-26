@@ -41,7 +41,7 @@ This package have two basic functions:
 
 Runtime depends polynomially on the number of vertices and edges. In the first case the complexity of the algorithm is $O(|V|\cdot(|V|+|E|))$, in the second case it is $O(|V|^{2}\cdot(|V|+|E|))$, where $|V|$ is the number of vertices and $|E|$ is the number of edges in the graph.
 
-Only undirected graphs.
+Only undirected сonnected graphs.
 
 The module has been tested to work on Python 3.12.7.
 
