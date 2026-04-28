@@ -44,9 +44,9 @@ For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positiv
 |SRG(35,18,9,9)|25 651|||
 |SRG(36,14,4,6)|16 110|||
 |SRG(36,15,6,6)|529 669 878|||
-|SRG(37,18,8,9)|22 845 420|||
+|SRG(37,18,8,9) some|22 845 420|||
 |SRG(40,12,2,4)|378|||
-|SRG(65,32,15,16)|496|||
+|SRG(65,32,15,16) some|496|||
 
 # Graph Isomorphism
 
