@@ -324,7 +324,31 @@ class Graph:
         )
 
     @staticmethod
+    def compute_layer_degree_map(network):
+        
+        res_list = [{} for _ in range(len(network) + 1)]
+        
+        for layer_idx, layer in enumerate(network):
+            curr_res = res_list[layer_idx]
+            next_res = res_list[layer_idx + 1]
+            
+            for src, dsts in layer.items():
+                if src in curr_res:
+                    curr_res[src][1] = len(dsts)
+                else:
+                    curr_res[src] = [0, len(dsts)]
+                
+                for dst in dsts:
+                    if dst in next_res:
+                        next_res[dst][0] += 1
+                    else:
+                        next_res[dst] = [1, 0]
+        
+        return res_list
+
+    @staticmethod
     def inverse_network(network):
+        
         inverted_network = []
         for layer in reversed(network):
             inv_layer = {}
@@ -341,57 +365,77 @@ class Graph:
     def find_loops(network):
         
         inv_net = Graph.inverse_network(network)
+        layer_degree_map = Graph.compute_layer_degree_map(inv_net)
         depth = len(inv_net)
         
         result = []
         for n in range(depth):
         
+            child_group = []
             parent_groups = []
             for k, nbs in inv_net[n].items():
                 if len(nbs) >= 2:
                     parent_groups.append(tuple(nbs))
-            
+                    child_group.append(tuple([k]*len(nbs)))
+                    
                 for nb in nbs:
                     if nb in inv_net[n] and k in inv_net[n][nb]:
                         pair = tuple(sorted((k,nb)))
                         if pair not in parent_groups:
                             parent_groups.append(pair)
-            
+                            child_group.append(tuple(reversed(pair)))
+        
             for m in range(len(parent_groups)):
-            
+                prestart_groups = [[v] for v in child_group[m]]
                 start_groups = [[v] for v in parent_groups[m]]
+                
+                group_history0 = [[ [layer_degree_map[n][key] for key in group] ] for group in prestart_groups]
+                group_history1 = [[ [layer_degree_map[n+1][key] for key in group] ] for group in start_groups]
+                
+                group_history = [h0 + h1 for h0, h1 in zip(group_history0, group_history1)]
+                
                 for j in range(n + 1, depth):
                     loop = str(n)
                     new_group = []
                     
-                    for group in start_groups:
+                    for idx, group in enumerate(start_groups):
                         current_union = set()
+                        current_layer_degrees = []
+                        
                         for key in group:
-                            val = inv_net[j].get(key, [])
+                            val = inv_net[j][key]
                             current_union.update(val)
+                            
+                            for v in val:
+                                degree_val = layer_degree_map[j+1][v]
+                                current_layer_degrees.append(degree_val)
+                        
                         new_group.append(list(current_union))
+                        group_history[idx].append(sorted(current_layer_degrees))
                     
                     seen_elements = set()
                     intersections_count = 0
-                    
                     for g in new_group:
                         current_set = set(g)
                         if not current_set.isdisjoint(seen_elements):
                             intersections_count += 1
-                        
                         seen_elements.update(current_set)
                     
                     if intersections_count > 0:
                         for _ in range(intersections_count):
                             loop += str(j)
                         
-                        result.append(loop)
-                        break  
+                        if len(set(child_group[m])) == 2:
+                            loop += '-'
+                        
+                        final_entry = (loop, *sorted(group_history))
+                        result.append(final_entry)
+                        break 
                     else:
                         start_groups = new_group
 
         return sorted(result)
-    
+        
     def test_is_isomorphic(self):
 
         if len(self.graph1) != len(self.graph2):
