@@ -36,6 +36,17 @@ For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positiv
 
 | Type | Total pairs | False positives | % false positives |
 |------|-------------|----------------|-------------------|
+|SRC(25,12,5,6)||||
+|SRC(26,10,3,4)||||
+|SRC(28,12,6,4)||||
+|SRC(29,14,6,7)||||
+|SRC(35,16,6,8)||||
+|SRC(35,18,9,9)||||
+|SRC(36,14,4,6)||||
+|SRC(36,15,6,6)||||
+|SRC(37,18,8,9)||||
+|SRC(40,12,2,4)||||
+|SRC(65,32,15,16)||||
 
 # Graph Isomorphism
 
