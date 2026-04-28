@@ -2,7 +2,7 @@
 
 # Isomorphism Testing Results for Connected Graphs
 
-Connected graphs from the [BDM collection](https://users.cecs.anu.edu.au/~bdm/data/graphs.html) were tested.  
+Connected graphs from the [BDM collection](https://users.cecs.anu.edu.au/~bdm/data/graphs.html) (Brendan McKay) were tested.  
 All graphs in a set are pairwise non-isomorphic. Before testing, graphs were grouped by trivial invariants:  
 - number of vertices  
 - number of edges  
