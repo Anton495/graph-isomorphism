@@ -32,15 +32,15 @@ For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positiv
 | graph8c.g6 | 293 364 | 280 | 0.095% |
 | graph9c.g6 | 90 277 837 | no data | — |
 
-# Strongly Regular Graphs
+## Strongly Regular Graphs
 
 | Type | Total pairs | False positives | % false positives |
 |------|-------------|----------------|-------------------|
-|SRG(25,12,5,6)||||
-|SRG(26,10,3,4)||||
-|SRG(28,12,6,4)||||
-|SRG(29,14,6,7)||||
-|SRG(35,16,6,8)||||
+|SRG(25,12,5,6)|105|||
+|SRG(26,10,3,4)|45|||
+|SRG(28,12,6,4)|6|||
+|SRG(29,14,6,7)|820|||
+|SRG(35,16,6,8)|7 424 731|||
 |SRG(35,18,9,9)||||
 |SRG(36,14,4,6)||||
 |SRG(36,15,6,6)||||
