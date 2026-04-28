@@ -21,14 +21,14 @@ For sets with **8 or fewer edges** and **6 or fewer vertices**, no false positiv
 | File | Total pairs | False positives | % false positives |
 |------|-------------|----------------|-------------------|
 | ge8c.g6 | 776 | 0 | 0.0000% |
-| ge9c.g6 | 6 055 | 2 | 0.0330% |
-| ge10c.g6 | 52 148 | 23 | 0.0441% |
-| ge11c.g6 | 498 917 | 190 | 0.0381% |
-| ge12c.g6 | 5 311 679 | 1 315 | 0.0248% |
+| ge9c.g6 | 6 055 | 0 | 0.0000% |
+| ge10c.g6 | 52 148 | 4 | 0.0076% |
+| ge11c.g6 | 498 917 | 37 | 0.0074% |
+| ge12c.g6 | 5 311 679 | 285 | 0.0053% |
 | ge13c.g6 | 62 412 197 | no data | — |
 | graph6c.g6 | 75 | 0 | 0.0000% |
-| graph7c.g6 | 3 038 | 10 | 0.3292% |
-| graph8c.g6 | 293 364 | 749 | 0.2553% |
+| graph7c.g6 | 3 038 | 4 | 0.1316% |
+| graph8c.g6 | 293 364 | 280 | 0.095% |
 | graph9c.g6 | 90 277 837 | no data | — |
 
 # Graph Isomorphism
