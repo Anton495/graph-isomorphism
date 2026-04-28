@@ -25,8 +25,8 @@ For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positiv
 | ge11c.g6 | 498 917 | 37 | 0.0074% |
 | ge12c.g6 | 5 311 679 | 285 | 0.0053% |
 | ge13c.g6 | 62 412 197 | no data | — |
-| ge14c.g6 | 805 017 968 | no data | - |
-| ge15c.g6 | 11 326 565 644 | no data | - |
+| ge14c.g6 | 805 017 968 | no data | — |
+| ge15c.g6 | 11 326 565 644 | no data | — |
 | graph6c.g6 | 75 | 0 | 0.0000% |
 | graph7c.g6 | 3 038 | 4 | 0.1316% |
 | graph8c.g6 | 293 364 | 280 | 0.095% |
