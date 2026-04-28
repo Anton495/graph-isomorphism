@@ -32,7 +32,7 @@ For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positiv
 | graph8c.g6 | 293 364 | 280 | 0.095% |
 | graph9c.g6 | 90 277 837 | no data | — |
 
-As the number of vertices and edges for random graphs increases, the number of false positive pairs decreases quite quickly and tends to zero.
+As the number of vertices and edges for random graphs increases, the percentage of false positive pairs decreases quite quickly and tends to zero.
 
 ## Strongly Regular Graphs
 
