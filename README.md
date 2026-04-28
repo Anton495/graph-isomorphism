@@ -31,7 +31,11 @@ For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positiv
 | graph7c.g6 | 3 038 | 4 | 0.1316% |
 | graph8c.g6 | 293 364 | 280 | 0.095% |
 | graph9c.g6 | 90 277 837 | no data | — |
-| graph10c.g6 | 805 017 968 | no data | - |
+
+# Strongly Regular Graphs
+
+| Type | Total pairs | False positives | % false positives |
+|------|-------------|----------------|-------------------|
 
 # Graph Isomorphism
 
