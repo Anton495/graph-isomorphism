@@ -14,13 +14,12 @@ The table includes sets:
 - `ge*` – graphs with a fixed number of edges (8 to 13);
 - `graph*` – graphs with a fixed number of vertices (6 to 9).
 
-For sets with **8 or fewer edges** and **6 or fewer vertices**, no false positives were recorded.
+For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positives were recorded.
 
 ## Results
 
 | File | Total pairs | False positives | % false positives |
 |------|-------------|----------------|-------------------|
-| ge8c.g6 | 776 | 0 | 0.0000% |
 | ge9c.g6 | 6 055 | 0 | 0.0000% |
 | ge10c.g6 | 52 148 | 4 | 0.0076% |
 | ge11c.g6 | 498 917 | 37 | 0.0074% |
