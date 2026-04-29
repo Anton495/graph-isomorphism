@@ -16,7 +16,7 @@ The table includes sets:
 
 For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positives were recorded.
 
-## Results
+## Graphs with a Fixed Number of Edges
 
 | File | Total pairs | False positives | % false positives |
 |------|-------------|----------------|-------------------|
@@ -27,6 +27,11 @@ For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positiv
 | ge13c.g6 | 62 412 197 | no data | — |
 | ge14c.g6 | 805 017 968 | no data | — |
 | ge15c.g6 | 11 326 565 644 | no data | — |
+
+## Graphs with a Fixed Number of Vertices
+
+| File | Total pairs | False positives | % false positives |
+|------|-------------|----------------|-------------------|
 | graph6c.g6 | 75 | 0 | 0.0000% |
 | graph7c.g6 | 3 038 | 4 | 0.1316% |
 | graph8c.g6 | 293 364 | 280 | 0.095% |
