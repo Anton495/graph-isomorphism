@@ -315,100 +315,8 @@ class Graph:
         return forward_profiles, reverse_profiles
     
     @staticmethod
-    def find_dead_end_branches(network):
-
-        out_deg = {}
-        in_deg = {}
-        layer_of = {}
-        rev_graph = defaultdict(list)
-
-        for i, layer_dict in enumerate(network):
-            for src, dsts in layer_dict.items():
-                out_deg[src] = len(dsts)
-                layer_of[src] = i
-                for dst in dsts:
-                    rev_graph[dst].append(src)
-
-        all_vertices = set(out_deg.keys())
-        for dst, srcs in rev_graph.items():
-            all_vertices.add(dst)
-
-        for v in all_vertices:
-            if v not in out_deg:
-                out_deg[v] = 0
-
-        for v in all_vertices:
-            srcs = rev_graph.get(v, [])
-            v_layer = layer_of.get(v)
-            in_deg[v] = len([s for s in srcs
-                             if layer_of.get(s) != v_layer])
-
-        leaves = [v for v in all_vertices
-                  if in_deg[v] == 1 and out_deg[v] == 0]
-
-        result = {}
-        for leaf in leaves:
-            branch = {}
-            curr = leaf
-
-            while True:
-                curr_layer = layer_of.get(curr)
-                parents = [p for p in rev_graph.get(curr, [])
-                           if layer_of.get(p) != curr_layer]
-
-                if not parents:
-                    break
-
-                parent = parents[0]
-                parent_in = in_deg[parent]
-                parent_out = out_deg[parent]
-                layer = layer_of[parent]
-
-                branch[layer] = (parent_in, parent_out)
-
-                if parent_in != 1:
-                    break
-
-                curr = parent
-
-            result[leaf] = branch
-
-        return result
-
-    @staticmethod
-    def normalize_dead_end_branches(dead_ends):
-
-        return sorted(
-            tuple(sorted(branch.items()))
-            for branch in dead_ends.values()
-        )
-
-    @staticmethod
-    def compute_layer_degree_map(network):
-        
-        res_list = [{} for _ in range(len(network) + 1)]
-        
-        for layer_idx, layer in enumerate(network):
-            curr_res = res_list[layer_idx]
-            next_res = res_list[layer_idx + 1]
-            
-            for src, dsts in layer.items():
-                if src in curr_res:
-                    curr_res[src][1] = len(dsts)
-                else:
-                    curr_res[src] = [0, len(dsts)]
-                
-                for dst in dsts:
-                    if dst in next_res:
-                        next_res[dst][0] += 1
-                    else:
-                        next_res[dst] = [1, 0]
-        
-        return res_list
-
-    @staticmethod
     def inverse_network(network):
-        
+
         inverted_network = []
         for layer in reversed(network):
             inv_layer = {}
@@ -418,84 +326,183 @@ class Graph:
                         inv_layer[val] = []
                     inv_layer[val].append(key)
             inverted_network.append(inv_layer)
-        
+
         return inverted_network
 
     @staticmethod
-    def find_loops(network):
-        
-        inv_net = Graph.inverse_network(network)
+    def compute_layer_degree_map(network):
+
+        res_list = [{} for _ in range(len(network) + 1)]
+
+        for layer_idx, layer in enumerate(network):
+            curr_res = res_list[layer_idx]
+            next_res = res_list[layer_idx + 1]
+
+            for src, dsts in layer.items():
+                if src in curr_res:
+                    curr_res[src][1] = len(dsts)
+                else:
+                    curr_res[src] = [0, len(dsts)]
+
+                for dst in dsts:
+                    if dst in next_res:
+                        next_res[dst][0] += 1
+                    else:
+                        next_res[dst] = [1, 0]
+
+        return res_list
+
+    @staticmethod
+    def find_loops_and_dead_end_branches(net):
+
+        inv_net = Graph.inverse_network(net)
         layer_degree_map = Graph.compute_layer_degree_map(inv_net)
         depth = len(inv_net)
-        
+
         result = []
+        inv_result = []
         for n in range(depth):
-        
             child_group = []
             parent_groups = []
+            is_branch = []
+            used_in_loops = set()
+
             for k, nbs in inv_net[n].items():
                 if len(nbs) >= 2:
                     parent_groups.append(tuple(nbs))
-                    child_group.append(tuple([k]*len(nbs)))
-                    
+                    child_group.append(tuple([k] * len(nbs)))
+                    is_branch.append(False)
+                    used_in_loops.update(nbs)
+
                 for nb in nbs:
                     if nb in inv_net[n] and k in inv_net[n][nb]:
-                        pair = tuple(sorted((k,nb)))
+                        pair = tuple(sorted((k, nb)))
                         if pair not in parent_groups:
                             parent_groups.append(pair)
                             child_group.append(tuple(reversed(pair)))
-        
-            for m in range(len(parent_groups)):
-                prestart_groups = [[v] for v in child_group[m]]
-                start_groups = [[v] for v in parent_groups[m]]
-                
-                group_history0 = [[ [layer_degree_map[n][key] for key in group] ] for group in prestart_groups]
-                group_history1 = [[ [layer_degree_map[n+1][key] for key in group] ] for group in start_groups]
-                
-                group_history = [h0 + h1 for h0, h1 in zip(group_history0, group_history1)]
-                
-                for j in range(n + 1, depth):
-                    loop = str(n)
-                    new_group = []
-                    
-                    for idx, group in enumerate(start_groups):
-                        current_union = set()
-                        current_layer_degrees = []
-                        
-                        for key in group:
-                            val = inv_net[j][key]
-                            current_union.update(val)
-                            
-                            for v in val:
-                                degree_val = layer_degree_map[j+1][v]
-                                current_layer_degrees.append(degree_val)
-                        
-                        new_group.append(list(current_union))
-                        group_history[idx].append(sorted(current_layer_degrees))
-                    
-                    seen_elements = set()
-                    intersections_count = 0
-                    for g in new_group:
-                        current_set = set(g)
-                        if not current_set.isdisjoint(seen_elements):
-                            intersections_count += 1
-                        seen_elements.update(current_set)
-                    
-                    if intersections_count > 0:
-                        for _ in range(intersections_count):
-                            loop += str(j)
-                        
-                        if len(set(child_group[m])) == 2:
-                            loop += '-'
-                        
-                        final_entry = (loop, *sorted(group_history))
-                        result.append(final_entry)
-                        break 
-                    else:
-                        start_groups = new_group
+                            is_branch.append(False)
+                            used_in_loops.update(pair)
 
-        return sorted(result)
-        
+            for node, degrees in layer_degree_map[n].items():
+                if degrees in [[0, 1], [1, 1]] and node not in used_in_loops:
+                    if node in inv_net[n]:
+                        parent_groups.append(tuple(inv_net[n][node]))
+                        child_group.append((node,))
+                        is_branch.append(True)
+
+            for m in range(len(parent_groups)):
+                current_groups = [[v] for v in parent_groups[m]]
+                inv_group_history = []
+                group_history = []
+
+                h0_inv = [layer_degree_map[n][v] for v in child_group[m]]
+                h0_raw = list(child_group[m])
+
+                for i in range(len(current_groups)):
+                    c_node = h0_raw[i] if i < len(h0_raw) else h0_raw[0]
+                    c_inv = h0_inv[i] if i < len(h0_inv) else h0_inv[0]
+
+                    inv_group_history.append(
+                        [[c_inv], [layer_degree_map[n+1][v]
+                                   for v in current_groups[i]]])
+                    group_history.append([[c_node], current_groups[i]])
+
+                for j in range(n + 1, depth):
+                    new_groups = []
+                    branch_should_stop = False
+
+                    if is_branch[m]:
+                        curr_node = current_groups[0][0]
+                        if layer_degree_map[j][curr_node][1] != 1:
+                            branch_should_stop = True
+
+                    if not branch_should_stop:
+                        for idx in range(len(current_groups)):
+                            next_nodes = set()
+                            for node in current_groups[idx]:
+                                targets = inv_net[j].get(node, [])
+                                next_nodes.update(targets)
+
+                            new_groups.append(list(next_nodes))
+                            inv_degrees = [layer_degree_map[j+1][v]
+                                           for v in next_nodes]
+                            inv_group_history[idx].append(sorted(inv_degrees))
+                            group_history[idx].append(sorted(list(next_nodes)))
+
+                    seen = set()
+                    intersections = 0
+                    for g in new_groups:
+                        g_set = set(g)
+                        if not g_set.isdisjoint(seen):
+                            intersections += 1
+                        seen.update(g_set)
+
+                    if ((not is_branch[m] and intersections > 0)
+                            or (is_branch[m] and branch_should_stop)):
+                        label = ([n] + [j] * intersections
+                                 if not is_branch[m] else [n, j, -1])
+                        if (not is_branch[m]
+                                and len(set(child_group[m])) == 2):
+                            label.append(0)
+
+                        result.append(
+                            (tuple(label), *sorted(group_history)))
+                        inv_result.append(
+                            (tuple(label), *sorted(inv_group_history)))
+                        break
+                    elif j == depth - 1:
+                        label = ([n] + [j] * intersections
+                                 if not is_branch[m] else [n, j+1, -1])
+                        result.append(
+                            (tuple(label), *sorted(group_history)))
+                        inv_result.append(
+                            (tuple(label), *sorted(inv_group_history)))
+                        break
+                    else:
+                        current_groups = new_groups
+
+        return sorted(inv_result), result
+
+    @staticmethod
+    def get_loops_and_dead_end_branches_intersections(
+            loops_and_dead_end_branches):
+
+        loops_and_dead_end_branches = sorted(
+            loops_and_dead_end_branches)
+
+        intersections = defaultdict(lambda: defaultdict(int))
+        n = len(loops_and_dead_end_branches)
+
+        indexed = []
+        for item in loops_and_dead_end_branches:
+            meta = item[0]
+            offset = meta[0]
+            branches = item[1:]
+
+            layer_map = defaultdict(set)
+            for branch in branches:
+                for i, layer_content in enumerate(branch):
+                    abs_layer = i + offset
+                    if isinstance(layer_content, list):
+                        layer_map[abs_layer].update(layer_content)
+                    else:
+                        layer_map[abs_layer].add(layer_content)
+            indexed.append(layer_map)
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                layers_i = indexed[i]
+                layers_j = indexed[j]
+
+                common_layers = set(layers_i.keys()) & set(layers_j.keys())
+
+                for layer in common_layers:
+                    common_nodes = layers_i[layer] & layers_j[layer]
+                    if common_nodes:
+                        intersections[(i, j)][layer] = len(common_nodes)
+
+        return {k: dict(v) for k, v in intersections.items()}
+
     def test_is_isomorphic(self):
 
         if len(self.graph1) != len(self.graph2):
@@ -535,9 +542,9 @@ class Graph:
 
         net1 = Graph.minimal_oneway_network(self.graph1, ref_vertex)
         bdp1 = Graph.compute_bidirectional_degree_profiles(net1)
-        deb1 = Graph.normalize_dead_end_branches(
-            Graph.find_dead_end_branches(net1))
-        loops1 = Graph.find_loops(net1)
+        ld2_inv1, ld2_res1 = Graph.find_loops_and_dead_end_branches(net1)
+        ld3_1 = Graph.get_loops_and_dead_end_branches_intersections(
+            ld2_res1)
 
         for v2 in candidates:
             net2 = Graph.minimal_oneway_network(self.graph2, v2)
@@ -546,13 +553,14 @@ class Graph:
             if bdp1 != bdp2:
                 continue
 
-            deb2 = Graph.normalize_dead_end_branches(
-                Graph.find_dead_end_branches(net2))
-            if deb1 != deb2:
+            ld2_inv2, ld2_res2 = Graph.find_loops_and_dead_end_branches(
+                net2)
+            if (ld2_inv1, ld2_res1) != (ld2_inv2, ld2_res2):
                 continue
 
-            loops2 = Graph.find_loops(net2)
-            if loops1 == loops2:
+            ld3_2 = Graph.get_loops_and_dead_end_branches_intersections(
+                ld2_res2)
+            if ld3_1 == ld3_2:
                 return True
 
         return False
@@ -618,29 +626,33 @@ class Graph:
             g2_net[v2] = net2
             g2_bdp[v2] = Graph.compute_bidirectional_degree_profiles(net2)
 
-        g2_deb = {}
+        g2_ld2 = {}
 
-        def get_deb(v2):
-            if v2 not in g2_deb:
-                g2_deb[v2] = Graph.normalize_dead_end_branches(
-                    Graph.find_dead_end_branches(g2_net[v2]))
-            return g2_deb[v2]
+        def get_ld2(v2):
+            if v2 not in g2_ld2:
+                g2_ld2[v2] = Graph.find_loops_and_dead_end_branches(
+                    g2_net[v2])
+            return g2_ld2[v2]
 
-        g2_loops = {}
+        g2_ld3 = {}
 
-        def get_loops(v2):
-            if v2 not in g2_loops:
-                g2_loops[v2] = Graph.find_loops(g2_net[v2])
-            return g2_loops[v2]
+        def get_ld3(v2):
+            if v2 not in g2_ld3:
+                _, ld2_res2 = get_ld2(v2)
+                g2_ld3[v2] = \
+                    Graph.get_loops_and_dead_end_branches_intersections(
+                        ld2_res2)
+            return g2_ld3[v2]
 
         orbits = []
         for v1 in vertices1:
 
             net1 = Graph.minimal_oneway_network(self.graph1, v1)
             bdp1 = Graph.compute_bidirectional_degree_profiles(net1)
-            deb1 = Graph.normalize_dead_end_branches(
-                Graph.find_dead_end_branches(net1))
-            loops1 = Graph.find_loops(net1)
+            ld2_inv1, ld2_res1 = Graph.find_loops_and_dead_end_branches(
+                net1)
+            ld3_1 = Graph.get_loops_and_dead_end_branches_intersections(
+                ld2_res1)
 
             d1 = len(self.graph1[v1])
             v1_matched = False
@@ -654,12 +666,12 @@ class Graph:
                 if bdp1 != bdp2:
                     continue
 
-                deb2 = get_deb(v2)
-                if deb1 != deb2:
+                ld2_inv2, ld2_res2 = get_ld2(v2)
+                if (ld2_inv1, ld2_res1) != (ld2_inv2, ld2_res2):
                     continue
 
-                loops2 = get_loops(v2)
-                if loops1 == loops2:
+                ld3_2 = get_ld3(v2)
+                if ld3_1 == ld3_2:
 
                     row = [row[0] for row in orbits]
                     if v1 in row:
@@ -685,44 +697,3 @@ class Graph:
             return None
 
         return orbits
-    
-    def find_automorphism(self,orbits):
-        
-        vertices = tuple(orbit[0] for orbit in orbits)
-        num_vertices = len(vertices)
-        
-        mapping = [None]*num_vertices
-        in_processing = [0]*num_vertices
-        for n in range(num_vertices):
-            if type(orbits[n][1]) == str:
-                mapping[n] = orbits[n][1]
-                in_processing[n] = 1 
-        
-        if None not in mapping:
-            return [vertices,tuple(mapping)]
-        
-        for n in range(num_vertices):
-            if type(orbits[n][1]) != str and len(list(orbits[n][1])) == 2:
-                break
-        
-        mapping[n] = choice(list(orbits[n][1]))
-        in_processing[n] = 1
-        
-        for n in range(num_vertices):
-            i = in_processing.index(1)
-            neighbors1 = self.graph1[vertices[i]]
-            neighbors2 = self.graph2[mapping[i]]
-            shuffle(neighbors1)
-            shuffle(neighbors2)
-        
-            for nb1 in neighbors1:
-                ind = vertices.index(nb1)
-            
-                for nb2 in neighbors2:
-                    if mapping[ind] == None and nb2 not in mapping and nb2 in orbits[ind][1]:
-                        mapping[ind] = nb2
-                        in_processing[ind] = 1
-            
-            in_processing[i] = 0
-        
-        return [vertices,tuple(mapping)]
