@@ -185,6 +185,66 @@ class Graph:
                     entry_dst.setdefault(next_idx, [0, 0])[0] += 1
                     
         return degree_dict
+
+    @staticmethod
+    def get_degree_dict_hashes(network, inv=False):
+        """
+        Static Method: Computes structural invariant signatures for vertices in a multilayer network.
+        
+        This function analyzes the in-degree and out-degree of each vertex across all layers 
+        to create a label-independent signature. To ensure mathematical certainty for 
+        isomorphism proofs, it uses full sorted tuples as signatures instead of hash values, 
+        thereby eliminating any possibility of hash collisions.
+        
+        Args:
+            network (list[dict]): A list of layers, where each layer is a 
+                dictionary {source_node: [target_nodes]}.
+            inv (bool): If False (default), returns a mapping from vertex 
+                labels to their structural signatures. 
+                If True, returns a mapping from signatures to lists of vertex 
+                labels (grouping symmetric vertices).
+                
+        Returns:
+            dict: 
+                - If inv=False: {vertex: signature_tuple}
+                - If inv=True:  {signature_tuple: [vertex1, vertex2, ...]}
+                
+        Note:
+            The signature is a sorted tuple of (layer_index, (in_degree, out_degree)).
+            Using tuples directly as keys is computationally safe in Python and 
+            guarantees that distinct structures will never be treated as identical.
+            
+        Example:
+            >>> net = [{4: [9, 10]}]
+            >>> A = Graph.get_degree_dict_hashes(net, inv=False)
+            >>> B = Graph.get_degree_dict_hashes(net, inv=True)
+            >>> set(A.values()) == set(B.keys())
+            True
+        """
+        degree_dict = {}
+        # 1. Collect in/out degrees for each vertex across layers
+        for layer_idx, layer in enumerate(network):
+            for src, dsts in layer.items():
+                # Set out-degree for source
+                degree_dict.setdefault(src, {}).setdefault(layer_idx, [0, 0])[1] = len(dsts)
+                # Increment in-degree for each target
+                for dst in dsts:
+                    degree_dict.setdefault(dst, {}).setdefault(layer_idx + 1, [0, 0])[0] += 1
+    
+        # 2. Generate (vertex, structural_signature) pairs
+        v_signature_pairs = (
+            (v, tuple(sorted((l, tuple(d)) for l, d in layers.items())))
+            for v, layers in degree_dict.items()
+        )
+    
+        # 3. Format output based on 'inv' flag
+        if not inv:
+            return dict(v_signature_pairs)
+        
+        result = defaultdict(list)
+        for v, signature in v_signature_pairs:
+            result[signature].append(v)
+        return dict(result)
     
     @staticmethod
     def network_derivative(network):
