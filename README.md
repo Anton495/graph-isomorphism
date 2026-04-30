@@ -14,16 +14,16 @@ The table includes sets:
 - `ge*` – graphs with a fixed number of edges (8 to 13);
 - `graph*` – graphs with a fixed number of vertices (6 to 9).
 
-For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positives were recorded.
+For sets with **10 or fewer edges** and **6 or fewer vertices**, no false positives were recorded.
 
 ## Graphs with a Fixed Number of Edges
 
 | File | Total pairs | False positives | % false positives |
 |------|-------------|----------------|-------------------|
 | ge9c.g6 | 6 055 | 0 | 0.0000% |
-| ge10c.g6 | 52 148 | 4 | 0.0076% |
-| ge11c.g6 | 498 917 | 37 | 0.0074% |
-| ge12c.g6 | 5 311 679 | 285 | 0.0053% |
+| ge10c.g6 | 52 148 | 0 | 0.0000% |
+| ge11c.g6 | 498 917 | 1 | 0.0002% |
+| ge12c.g6 | 5 311 679 | 3 | 0.00005% |
 | ge13c.g6 | 62 412 197 | no data | — |
 | ge14c.g6 | 805 017 968 | no data | — |
 | ge15c.g6 | 11 326 565 644 | no data | — |
@@ -33,8 +33,8 @@ For sets with **9 or fewer edges** and **6 or fewer vertices**, no false positiv
 | File | Total pairs | False positives | % false positives |
 |------|-------------|----------------|-------------------|
 | graph6c.g6 | 75 | 0 | 0.0000% |
-| graph7c.g6 | 3 038 | 4 | 0.1316% |
-| graph8c.g6 | 293 364 | 280 | 0.095% |
+| graph7c.g6 | 3 038 | 0 | 0.0000% |
+| graph8c.g6 | 293 364 | 0 | 0.0000% |
 | graph9c.g6 | 90 277 837 | no data | — |
 
 As the number of vertices and edges for random graphs increases, the percentage of false positive pairs decreases quite quickly and tends to zero.
@@ -43,17 +43,17 @@ As the number of vertices and edges for random graphs increases, the percentage 
 
 | Type | Total pairs | False positives | % false positives |
 |------|-------------|----------------|-------------------|
-|SRG(25,12,5,6)|105|||
-|SRG(26,10,3,4)|45|||
-|SRG(28,12,6,4)|6|||
-|SRG(29,14,6,7)|820|||
-|SRG(35,16,6,8)|7 424 731|||
-|SRG(35,18,9,9)|25 651|||
-|SRG(36,14,4,6)|16 110|||
-|SRG(36,15,6,6)|529 669 878|||
-|SRG(37,18,8,9) some|22 845 420|||
-|SRG(40,12,2,4)|378|||
-|SRG(65,32,15,16) some|496|||
+|SRG(25,12,5,6)|105|0|0.0000%|
+|SRG(26,10,3,4)|45|0|0.0000%|
+|SRG(28,12,6,4)|6|0|0.0000%|
+|SRG(29,14,6,7)|820|0|—|
+|SRG(35,16,6,8)|7 424 731|no data|—|
+|SRG(35,18,9,9)|25 651|no data|—|
+|SRG(36,14,4,6)|16 110|0|0.0000%|
+|SRG(36,15,6,6)|529 669 878|no data|—|
+|SRG(37,18,8,9) some|22 845 420|no data|—|
+|SRG(40,12,2,4)|378|0|0.0000%|
+|SRG(65,32,15,16) some|496|0|0.0000%|
 
 # Graph Isomorphism
 
