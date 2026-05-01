@@ -14,7 +14,7 @@ The table includes sets:
 - `ge*` – graphs with a fixed number of edges (8 to 13);
 - `graph*` – graphs with a fixed number of vertices (6 to 9).
 
-For sets with **10 or fewer edges** and **8 or fewer vertices**, no false positives were recorded.
+For sets with **12 or fewer edges** and **8 or fewer vertices**, no false positives were recorded.
 
 ## Graphs with a Fixed Number of Edges
 
