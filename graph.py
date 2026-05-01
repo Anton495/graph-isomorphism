@@ -358,114 +358,81 @@ class Graph:
         inv_net = Graph.inverse_network(net)
         layer_degree_map = Graph.compute_layer_degree_map(inv_net)
         depth = len(inv_net)
-
-        result = []
-        inv_result = []
+        result, inv_result = [], []
+        
         for n in range(depth):
-            child_group = []
-            parent_groups = []
-            is_branch = []
-            used_in_loops = set()
-
+            child_groups_data = [] 
+            used_in_structures = set()
+    
             for k, nbs in inv_net[n].items():
                 if len(nbs) >= 2:
-                    parent_groups.append(tuple(nbs))
-                    child_group.append(tuple([k] * len(nbs)))
-                    is_branch.append(False)
-                    used_in_loops.update(nbs)
-
-                for nb in nbs:
-                    if nb in inv_net[n] and k in inv_net[n][nb]:
-                        pair = tuple(sorted((k, nb)))
-                        if pair not in parent_groups:
-                            parent_groups.append(pair)
-                            child_group.append(tuple(reversed(pair)))
-                            is_branch.append(False)
-                            used_in_loops.update(pair)
-
+                    child_groups_data.append((tuple(nbs), tuple([k]*len(nbs)), False))
+                    used_in_structures.add(k)
+                    used_in_structures.update(nbs)
+    
+            layer_nodes = list(inv_net[n].keys())
+            for i in range(len(layer_nodes)):
+                for j in range(i + 1, len(layer_nodes)):
+                    u, v = layer_nodes[i], layer_nodes[j]
+                    if v in inv_net[n][u] and u in inv_net[n][v]:
+                        pair = (u, v)
+                        child_groups_data.append(((v, u), (u, v), False))
+                        used_in_structures.update(pair)
+    
             for node, degrees in layer_degree_map[n].items():
-                if degrees in [[0, 1], [1, 1]] and node not in used_in_loops:
+                if node not in used_in_structures and degrees[0] == 0:
                     if node in inv_net[n]:
-                        parent_groups.append(tuple(inv_net[n][node]))
-                        child_group.append((node,))
-                        is_branch.append(True)
-
-            for m in range(len(parent_groups)):
-                current_groups = [[v] for v in parent_groups[m]]
-                inv_group_history = []
-                group_history = []
-
-                h0_inv = [layer_degree_map[n][v] for v in child_group[m]]
-                h0_raw = list(child_group[m])
-
-                for i in range(len(current_groups)):
-                    c_node = h0_raw[i] if i < len(h0_raw) else h0_raw[0]
-                    c_inv = h0_inv[i] if i < len(h0_inv) else h0_inv[0]
-
-                    inv_group_history.append(
-                        [[c_inv], [layer_degree_map[n+1][v]
-                                   for v in current_groups[i]]])
-                    group_history.append([[c_node], current_groups[i]])
-
+                        child_groups_data.append((tuple(inv_net[n][node]), (node,), True))
+    
+            for parent_group, child_group, is_branch in child_groups_data:
+                num_branches = len(parent_group)
+                group_hist = [[[child_group[i] if i < len(child_group) else child_group[0]], [parent_group[i]]] for i in range(num_branches)]
+                inv_hist = [[[layer_degree_map[n][child_group[i] if i < len(child_group) else child_group[0]]], [layer_degree_map[n+1][parent_group[i]]]] for i in range(num_branches)]
+    
+                intersections_log = []
+                branch_mapping = list(range(num_branches)) 
+                
                 for j in range(n + 1, depth):
-                    new_groups = []
-                    branch_should_stop = False
-
-                    if is_branch[m]:
-                        curr_node = current_groups[0][0]
-                        if layer_degree_map[j][curr_node][1] != 1:
-                            branch_should_stop = True
-
-                    if not branch_should_stop:
-                        for idx in range(len(current_groups)):
-                            next_nodes = set()
-                            for node in current_groups[idx]:
-                                targets = inv_net[j].get(node, [])
-                                next_nodes.update(targets)
-
-                            new_groups.append(list(next_nodes))
-                            inv_degrees = [layer_degree_map[j+1][v]
-                                           for v in next_nodes]
-                            inv_group_history[idx].append(sorted(inv_degrees))
-                            group_history[idx].append(sorted(list(next_nodes)))
-
-                    seen = set()
-                    intersections = 0
-                    for g in new_groups:
-                        g_set = set(g)
-                        if not g_set.isdisjoint(seen):
-                            intersections += 1
-                        seen.update(g_set)
-
-                    if ((not is_branch[m] and intersections > 0)
-                            or (is_branch[m] and branch_should_stop)):
-                        label = ([n] + [j] * intersections
-                                 if not is_branch[m] else [n, j, -1])
-                        if (not is_branch[m]
-                                and len(set(child_group[m])) == 2):
-                            label.append(0)
-
-                        result.append(
-                            (tuple(label), *sorted(group_history)))
-                        inv_result.append(
-                            (tuple(label), *sorted(inv_group_history)))
-                        break
-                    elif j == depth - 1:
-                        label = ([n] + [j] * intersections
-                                 if not is_branch[m] else [n, j+1, -1])
-                        result.append(
-                            (tuple(label), *sorted(group_history)))
-                        inv_result.append(
-                            (tuple(label), *sorted(inv_group_history)))
-                        break
-                    else:
-                        current_groups = new_groups
-
+                    current_step_nodes = []
+                    for b_idx in range(num_branches):
+                        last_nodes = group_hist[b_idx][-1]
+                        next_nodes = set()
+                        for node in last_nodes:
+                            next_nodes.update(inv_net[j].get(node, []))
+                        
+                        next_list = sorted(list(next_nodes))
+                        group_hist[b_idx].append(next_list)
+                        inv_hist[b_idx].append([layer_degree_map[j+1][v] for v in next_list])
+                        current_step_nodes.append(next_nodes)
+    
+                    for i in range(num_branches):
+                        for k in range(i + 1, num_branches):
+                            if branch_mapping[i] != branch_mapping[k]:
+                                if not current_step_nodes[i].isdisjoint(current_step_nodes[k]) and current_step_nodes[i]:
+                                    old_id = branch_mapping[k]
+                                    for idx in range(num_branches):
+                                        if branch_mapping[idx] == old_id:
+                                            branch_mapping[idx] = branch_mapping[i]
+                                    intersections_log.append(j + 1)
+                                    
+                if is_branch:
+                    exit_l = depth
+                    for step_idx in range(1, len(group_hist[0])):
+                        node = group_hist[0][step_idx][0] if group_hist[0][step_idx] else None
+                        if node and layer_degree_map[n+step_idx][node][1] != 1:
+                            exit_l = n + step_idx + (1 if n == 0 else 0)
+                            break
+                    label = (n, exit_l, -1)
+                else:
+                    label = tuple([n] + sorted(intersections_log))
+                
+                result.append((label, *[h for h in group_hist]))
+                inv_result.append((label, *[h for h in inv_hist]))
+    
         return sorted(inv_result), result
 
     @staticmethod
-    def get_loops_and_dead_end_branches_intersections(
-            loops_and_dead_end_branches):
+    def get_loops_and_dead_end_branches_intersections(loops_and_dead_end_branches):
 
         loops_and_dead_end_branches = sorted(
             loops_and_dead_end_branches)
