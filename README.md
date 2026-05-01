@@ -175,6 +175,9 @@ True
 ![Minimal network](./figure/Minimal_network.png)
 
 # GVN invariants
+
+⚠️ This section will be revised and expanded.
+
 ## Matrix Indegrees and Outdegrees
 
 One of the key concepts of GVN is the matrix indegrees and outdegrees. Each row in this matrix corresponds to its own vertex. Furthermore, its rows do not have a fixed association with indices.
