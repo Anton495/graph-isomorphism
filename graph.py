@@ -634,7 +634,7 @@ class Graph:
                     continue
 
                 ld2_inv2, ld2_res2 = get_ld2(v2)
-                if (ld2_inv1, ld2_res1) != (ld2_inv2, ld2_res2):
+                if ld2_inv1 != ld2_inv2:
                     continue
 
                 ld3_2 = get_ld3(v2)
