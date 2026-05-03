@@ -522,7 +522,7 @@ class Graph:
 
             ld2_inv2, ld2_res2 = Graph.find_loops_and_dead_end_branches(
                 net2)
-            if (ld2_inv1, ld2_res1) != (ld2_inv2, ld2_res2):
+            if ld2_inv1 != ld2_inv2:
                 continue
 
             ld3_2 = Graph.get_loops_and_dead_end_branches_intersections(
