@@ -275,45 +275,96 @@ class Graph:
 
     @staticmethod
     def compute_bidirectional_degree_profiles(network):
-
-        node_in = defaultdict(int)
-        node_out = defaultdict(int)
-
+        """
+        Computes global degree-based structural invariants and mapping for path tracing.
+    
+        This method performs two passes over the network to calculate global node degrees 
+        and constructs bidirectional profiles that serve as topological invariants. 
+        It also generates a specialized global degree map for identifying loops 
+        and dead-end branches.
+    
+        Args:
+            network (list[dict]): A sequence of layers where each dictionary maps 
+                source node IDs to lists of target node IDs.
+    
+        Returns:
+            tuple: A triple containing:
+                1. forward_profiles (list[list[tuple]]): Forward structural invariants.
+                   Format: [(global_node_degree, sorted([global_target_degrees]))]. 
+                   Sorted within each layer to provide a canonical representation.
+                
+                2. reverse_profiles (list[list[tuple]]): Reverse structural invariants.
+                   Format: [(global_target_degree, sorted([global_source_degrees]))]. 
+                   Sorted within each layer to provide a canonical representation.
+    
+                3. reverse_degree_map (list[dict]): A layer-by-layer mapping of global 
+                   node degrees, indexed in reversed order with a length of len(network) + 1. 
+                   Contains global degrees formatted as [out_degree, in_degree] to 
+                   support sink-to-root tracing in `find_loops_and_dead_end_branches`.
+    
+        Note:
+            - Global degrees are (in_degree, out_degree) calculated across the entire network.
+            - In reverse_degree_map, degrees are swapped to [out, in] to reflect 
+              the reversed tracing logic (where a source in the original network 
+              becomes a target in the reversed path).
+        """
+        node_in_g = defaultdict(int)
+        node_out_g = defaultdict(int)
+    
         for layer in network:
             for src, targets in layer.items():
-                unique_targets = set(targets)
-                node_out[src] += len(unique_targets)
-                for t in unique_targets:
-                    node_in[t] += 1
-
-        deg = lambda n: (node_in[n], node_out[n])
-
+                u_targets = set(targets)
+                node_out_g[src] += len(u_targets)
+                for t in u_targets:
+                    node_in_g[t] += 1
+    
+        num_layers = len(network)
         forward_profiles = []
         reverse_profiles = []
-
-        for layer in network:
-            target_to_sources = defaultdict(set)
-            for src, targets in layer.items():
-                for t in set(targets):
-                    target_to_sources[t].add(src)
-
+        
+        res_list_global = [{} for _ in range(num_layers + 1)]
+    
+        for i, layer in enumerate(network):
             fwd_layer = []
+            rev_layer_data = defaultdict(list)
+            
+            curr_res = res_list_global[i]
+            next_res = res_list_global[i + 1]
+    
             for src, targets in layer.items():
-                unique_targets = set(targets)
-                fwd_layer.append(
-                    (deg(src), sorted(deg(t) for t in unique_targets)))
+                u_targets = set(targets)
+                src_deg_tuple = (node_in_g[src], node_out_g[src])
+                
+                if src not in curr_res:
+                    curr_res[src] = [node_in_g[src], node_out_g[src]]
+    
+                target_degs_g = []
+                for t in u_targets:
+                    t_deg_tuple = (node_in_g[t], node_out_g[t])
+                    target_degs_g.append(t_deg_tuple)
+                    rev_layer_data[t].append(src_deg_tuple)
+                    
+                    if t not in next_res:
+                        next_res[t] = [node_in_g[t], node_out_g[t]]
+    
+                fwd_layer.append((src_deg_tuple, sorted(target_degs_g)))
+    
             fwd_layer.sort()
             forward_profiles.append(fwd_layer)
-
-            rev_layer = []
-            for t, sources in target_to_sources.items():
-                rev_layer.append(
-                    (deg(t), sorted(deg(s) for s in sources)))
-            rev_layer.sort()
-            reverse_profiles.append(rev_layer)
-
-        return forward_profiles, reverse_profiles
     
+            rev_layer_list = []
+            for t, parents_degs in rev_layer_data.items():
+                t_deg_g = (node_in_g[t], node_out_g[t])
+                rev_layer_list.append((t_deg_g, sorted(parents_degs)))
+            rev_layer_list.sort()
+            reverse_profiles.append(rev_layer_list)
+    
+        reverse_degree_map = []
+        for layer in reversed(res_list_global):
+            reverse_degree_map.append({node: [d[1], d[0]] for node, d in layer.items()})
+    
+        return forward_profiles, reverse_profiles, reverse_degree_map
+
     @staticmethod
     def inverse_network(network):
 
@@ -329,146 +380,256 @@ class Graph:
 
         return inverted_network
 
-    @staticmethod
-    def compute_layer_degree_map(network):
+    def find_loops_and_dead_end_branches(net, layer_degree_map):
+        """
+        Identifies structural loops and dead-end branches using a Breadth-First Search (BFS)
+        traversal from sinks back to the origin.
 
-        res_list = [{} for _ in range(len(network) + 1)]
+        The function performs a layer-by-layer backward traversal. Structural features
+        are identified based on local node degrees within each layer:
 
-        for layer_idx, layer in enumerate(network):
-            curr_res = res_list[layer_idx]
-            next_res = res_list[layer_idx + 1]
+        1. Multiple-path loops: Detected at convergence points where the local
+           reversed out-degree (originally local in-degree) is >= 2.
+        2. Reciprocal edges: Detected as mutual connections between nodes within the same layer.
+        3. Dead-end branches: Detected at nodes with local reversed in-degree 0
+           (originally local out-degree 0).
 
-            for src, dsts in layer.items():
-                if src in curr_res:
-                    curr_res[src][1] = len(dsts)
-                else:
-                    curr_res[src] = [0, len(dsts)]
+        Args:
+            net (list[dict]): A sequence of layers representing the forward network.
+            layer_degree_map (list[dict]): A mapping of global node degrees indexed
+                in reversed order (length = len(net) + 1). Each entry contains
+                global [out_degree, in_degree] relative to the reversed logic.
 
-                for dst in dsts:
-                    if dst in next_res:
-                        next_res[dst][0] += 1
-                    else:
-                        next_res[dst] = [1, 0]
+        Returns:
+            tuple: A pair (sorted_inv_result, result) containing:
+                1. inv_result (list): Sorted tracing history using local node degree profiles,
+                   serving as a structural invariant.
+                2. result (list): Tracing history using raw node IDs.
 
-        return res_list
-
-    @staticmethod
-    def find_loops_and_dead_end_branches(net):
-
+        Note:
+            - The BFS approach ensures that all paths of a multi-branch structure are
+              traced simultaneously layer-by-layer back to the origin node.
+            - The process identifies where loops "close" (on the sink side) and
+              moves backward to find where they "open" (closer to the origin).
+            - Tracing persists until the origin node is reached for all branches.
+        """
+        # Pass 1: Invert the forward network to trace paths from sinks back to origin
         inv_net = Graph.inverse_network(net)
-        layer_degree_map = Graph.compute_layer_degree_map(inv_net)
         depth = len(inv_net)
         result, inv_result = [], []
-        
+    
         for n in range(depth):
-            child_groups_data = [] 
+            child_group = []
+            parent_groups = []
+            is_branch = []
             used_in_structures = set()
     
+            # 1. Detect loops and multiple paths
             for k, nbs in inv_net[n].items():
                 if len(nbs) >= 2:
-                    child_groups_data.append((tuple(nbs), tuple([k]*len(nbs)), False))
+                    parent_groups.append(tuple(nbs))
+                    child_group.append(tuple([k] * len(nbs)))
+                    is_branch.append(False)
                     used_in_structures.add(k)
                     used_in_structures.update(nbs)
     
+            # 2. Detect reciprocal edges (mutual connections)
             layer_nodes = list(inv_net[n].keys())
             for i in range(len(layer_nodes)):
                 for j in range(i + 1, len(layer_nodes)):
                     u, v = layer_nodes[i], layer_nodes[j]
-                    if v in inv_net[n][u] and u in inv_net[n][v]:
+                    if v in inv_net[n].get(u, []) and u in inv_net[n].get(v, []):
                         pair = (u, v)
-                        child_groups_data.append(((v, u), (u, v), False))
+                        parent_groups.append((v, u))
+                        child_group.append((u, v))
+                        is_branch.append(False)
                         used_in_structures.update(pair)
     
-            for node, degrees in layer_degree_map[n].items():
-                if node not in used_in_structures and degrees[0] == 0:
-                    if node in inv_net[n]:
-                        child_groups_data.append((tuple(inv_net[n][node]), (node,), True))
+            # 3. Detect dead-end branches (in=0, out=1 strictly inside inv_net)
+            # Check if the node was targeted in the previous layer of inv_net
+            prev_inv_targets = set()
+            if n > 0:
+                for targets in inv_net[n - 1].values():
+                    prev_inv_targets.update(targets)
     
-            for parent_group, child_group, is_branch in child_groups_data:
-                num_branches = len(parent_group)
-                group_hist = [[[child_group[i] if i < len(child_group) else child_group[0]], [parent_group[i]]] for i in range(num_branches)]
-                inv_hist = [[[layer_degree_map[n][child_group[i] if i < len(child_group) else child_group[0]]], [layer_degree_map[n+1][parent_group[i]]]] for i in range(num_branches)]
+            for node, nbs in inv_net[n].items():
+                # A node is a dead-end if it has exactly 1 parent in inv_net 
+                # and no incoming edges in the reversed direction
+                if node not in used_in_structures and node not in prev_inv_targets:
+                    if len(nbs) == 1:
+                        parent_groups.append(tuple(nbs))
+                        child_group.append((node,))
+                        is_branch.append(True)
+                        used_in_structures.add(node)
+    
+            # 4. Tracing paths layer-by-layer (BFS)
+            for m in range(len(parent_groups)):
+                current_groups = [[v] for v in parent_groups[m]]
+                inv_group_history = []
+                group_history = []
+    
+                h0_inv = [layer_degree_map[n][v] for v in child_group[m]]
+                h0_raw = list(child_group[m])
+    
+                for i in range(len(current_groups)):
+                    c_node = h0_raw[i] if i < len(h0_raw) else h0_raw
+                    c_inv = h0_inv[i] if i < len(h0_inv) else h0_inv
+    
+                    inv_group_history.append([[c_inv], [layer_degree_map[n + 1][v] for v in current_groups[i]]])
+                    group_history.append([[c_node], current_groups[i]])
     
                 intersections_log = []
-                branch_mapping = list(range(num_branches)) 
-                
-                for j in range(n + 1, depth):
-                    current_step_nodes = []
-                    for b_idx in range(num_branches):
-                        last_nodes = group_hist[b_idx][-1]
-                        next_nodes = set()
-                        for node in last_nodes:
-                            next_nodes.update(inv_net[j].get(node, []))
-                        
-                        next_list = sorted(list(next_nodes))
-                        group_hist[b_idx].append(next_list)
-                        inv_hist[b_idx].append([layer_degree_map[j+1][v] for v in next_list])
-                        current_step_nodes.append(next_nodes)
+                branch_mapping = list(range(len(current_groups)))
     
-                    for i in range(num_branches):
-                        for k in range(i + 1, num_branches):
+                for j in range(n + 1, depth):
+                    new_groups = []
+                    for b_idx in range(len(current_groups)):
+                        next_nodes = set()
+                        for node in current_groups[b_idx]:
+                            next_nodes.update(inv_net[j].get(node, []))
+    
+                        next_list = sorted(list(next_nodes))
+                        new_groups.append(next_list)
+    
+                        if next_list:
+                            inv_group_history[b_idx].append([layer_degree_map[j + 1][v] for v in next_list])
+                            group_history[b_idx].append(next_list)
+    
+                    # Track intersection layers for loops
+                    for i in range(len(current_groups)):
+                        for k in range(i + 1, len(current_groups)):
                             if branch_mapping[i] != branch_mapping[k]:
-                                if not current_step_nodes[i].isdisjoint(current_step_nodes[k]) and current_step_nodes[i]:
+                                if not set(new_groups[i]).isdisjoint(new_groups[k]) and new_groups[i]:
                                     old_id = branch_mapping[k]
-                                    for idx in range(num_branches):
+                                    for idx in range(len(current_groups)):
                                         if branch_mapping[idx] == old_id:
                                             branch_mapping[idx] = branch_mapping[i]
                                     intersections_log.append(j + 1)
-                                    
-                if is_branch:
-                    exit_l = depth
-                    for step_idx in range(1, len(group_hist[0])):
-                        node = group_hist[0][step_idx][0] if group_hist[0][step_idx] else None
-                        if node and layer_degree_map[n+step_idx][node][1] != 1:
-                            exit_l = n + step_idx + (1 if n == 0 else 0)
+    
+                    current_groups = new_groups
+    
+                # Finalize the Label based on structural type
+                if is_branch[m]:
+                    exit_layer = depth
+                    for step_idx in range(1, len(group_history)):
+                        nodes_at_step = group_history[step_idx]
+                        if any(layer_degree_map[n + step_idx][nd] != 1 for nd in nodes_at_step if nd in layer_degree_map[n + step_idx]):
+                            exit_layer = n + step_idx + (1 if n == 0 else 0)
                             break
-                    label = (n, exit_l, -1)
+                    label = (n, exit_layer, -1)
                 else:
-                    label = tuple([n] + sorted(intersections_log))
-                
-                result.append((label, *[h for h in group_hist]))
-                inv_result.append((label, *[h for h in inv_hist]))
+                    label_list = [n] + sorted(intersections_log)
+                    if len(set(child_group[m])) == 2:
+                        label_list.append(0)
+                    label = tuple(label_list)
+    
+                result.append((label, *sorted(group_history)))
+                inv_result.append((label, *sorted(inv_group_history)))
     
         return sorted(inv_result), result
 
-    @staticmethod
     def get_loops_and_dead_end_branches_intersections(loops_and_dead_end_branches):
-
-        loops_and_dead_end_branches = sorted(
-            loops_and_dead_end_branches)
-
-        intersections = defaultdict(lambda: defaultdict(int))
-        n = len(loops_and_dead_end_branches)
-
+        
         indexed = []
         for item in loops_and_dead_end_branches:
             meta = item[0]
-            offset = meta[0]
+            start = meta[0]
             branches = item[1:]
-
-            layer_map = defaultdict(set)
+            
+            element_branches = []
             for branch in branches:
+                branch_layers = {}
                 for i, layer_content in enumerate(branch):
-                    abs_layer = i + offset
-                    if isinstance(layer_content, list):
-                        layer_map[abs_layer].update(layer_content)
+                    abs_layer = i + start
+                    if isinstance(layer_content, (list, tuple, set)):
+                        branch_layers[abs_layer] = set(layer_content)
                     else:
-                        layer_map[abs_layer].add(layer_content)
-            indexed.append(layer_map)
-
+                        branch_layers[abs_layer] = {layer_content}
+                element_branches.append(branch_layers)
+            indexed.append(element_branches)
+        
+        temp_output = []
+        for item in loops_and_dead_end_branches:
+            branches = item[1:]
+            temp_output.append([{} for _ in branches])
+            
+        n = len(loops_and_dead_end_branches)
+        
         for i in range(n):
             for j in range(i + 1, n):
-                layers_i = indexed[i]
-                layers_j = indexed[j]
-
-                common_layers = set(layers_i.keys()) & set(layers_j.keys())
-
+                layers_i = set(l for b in indexed[i] for l in b)
+                layers_j = set(l for b in indexed[j] for l in b)
+                common_layers = layers_i & layers_j
+                
                 for layer in common_layers:
-                    common_nodes = layers_i[layer] & layers_j[layer]
-                    if common_nodes:
-                        intersections[(i, j)][layer] = len(common_nodes)
-
-        return {k: dict(v) for k, v in intersections.items()}
+                    counts_i_to_j = []
+                    for b_i in indexed[i]:
+                        if layer in b_i:
+                            row = []
+                            for b_j in indexed[j]:
+                                if layer in b_j:
+                                    row.append(len(b_i[layer] & b_j[layer]))
+                                else:
+                                    row.append(0)
+                            counts_i_to_j.append(row)
+                        else:
+                            counts_i_to_j.append([])
+                    
+                    counts_j_to_i = []
+                    for b_j in indexed[j]:
+                        if layer in b_j:
+                            row = []
+                            for b_i in indexed[i]:
+                                if layer in b_i:
+                                    row.append(len(b_j[layer] & b_i[layer]))
+                                else:
+                                    row.append(0)
+                            counts_j_to_i.append(row)
+                        else:
+                            counts_j_to_i.append([])
+    
+                    for b_i_idx, branch_counts in enumerate(counts_i_to_j):
+                        if not branch_counts:
+                            continue
+                        filtered = sorted([c for c in branch_counts if c > 0])
+                        if filtered:
+                            if layer not in temp_output[i][b_i_idx]:
+                                temp_output[i][b_i_idx][layer] = {}
+                            temp_output[i][b_i_idx][layer][j] = filtered
+    
+                    for b_j_idx, branch_counts in enumerate(counts_j_to_i):
+                        if not branch_counts:
+                            continue
+                        filtered = sorted([c for c in branch_counts if c > 0])
+                        if filtered:
+                            if layer not in temp_output[j][b_j_idx]:
+                                temp_output[j][b_j_idx][layer] = {}
+                            temp_output[j][b_j_idx][layer][i] = filtered
+    
+        final_output = []
+        for i, item in enumerate(loops_and_dead_end_branches):
+            meta = item[0]
+            start_i = meta[0]
+            branches = item[1:]
+            
+            element_branches_set = set()
+            for b_idx, branch in enumerate(branches):
+                branch_list = []
+                for k in range(len(branch)):
+                    abs_layer = start_i + k
+                    layer_data = temp_output[i][b_idx].get(abs_layer)
+                    if layer_data:
+                        branch_list.append(frozenset(
+                            (j, tuple(sorted(counts))) for j, counts in layer_data.items()
+                        ))
+                    else:
+                        branch_list.append(None)
+                
+                element_branches_set.add(tuple(branch_list))
+                
+            final_output.append(element_branches_set)
+    
+        return sorted(final_output)
 
     def test_is_isomorphic(self):
 
