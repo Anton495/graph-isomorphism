@@ -18,7 +18,7 @@ For sets with **12 or fewer edges** and **8 or fewer vertices**, no false positi
 
 ## Graphs with a Fixed Number of Edges
 
-| File | Total pairs | Inv1 | Inv2 | Inv3 |False positives | % false positives | 
+| File | Total pairs | Inv1 | Inv2 | Inv3 | False positives | % false positives | 
 |------|-------------|----------------|-------------------|------|------|------|
 | ge9c.g6 | 6 055 | 6 028 | 27 | 0 | 0 | 0.0000% |
 | ge10c.g6 | 52 148 | 51 953 | 192 | 3 | 0 | 0.0000% |
@@ -30,12 +30,12 @@ For sets with **12 or fewer edges** and **8 or fewer vertices**, no false positi
 
 ## Graphs with a Fixed Number of Vertices
 
-| File | Total pairs | False positives | % false positives |
+| File | Total pairs | Inv1 | Inv2 | Inv3 | False positives | % false positives |
 |------|-------------|----------------|-------------------|
-| graph6c.g6 | 75 | 0 | 0.0000% |
-| graph7c.g6 | 3 038 | 0 | 0.0000% |
-| graph8c.g6 | 293 364 | 0 | 0.0000% |
-| graph9c.g6 | 90 277 837 | no data | — |
+| graph6c.g6 | 75 | 75 | 0 | 0 | 0 | 0.0000% |
+| graph7c.g6 | 3 038 | 3 024 | 14 | 10 | 0 | 0.0000% |
+| graph8c.g6 | 293 364 | 291 901 | 1 031 | 432 | 0 | 0.0000% |
+| graph9c.g6 | 90 277 837 | no data | no data | no data | no data | — |
 
 ## Strongly Regular Graphs
 
