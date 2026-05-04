@@ -676,4 +676,43 @@ class Graph:
 
         return orbits
 
-        return orbits
+      def find_automorphism(self,orbits):
+        
+        vertices = tuple(orbit[0] for orbit in orbits)
+        num_vertices = len(vertices)
+        
+        mapping = [None]*num_vertices
+        in_processing = [0]*num_vertices
+        for n in range(num_vertices):
+            if type(orbits[n][1]) == str:
+                mapping[n] = orbits[n][1]
+                in_processing[n] = 1 
+        
+        if None not in mapping:
+            return [vertices,tuple(mapping)]
+        
+        for n in range(num_vertices):
+            if type(orbits[n][1]) != str and len(list(orbits[n][1])) == 2:
+                break
+        
+        mapping[n] = choice(list(orbits[n][1]))
+        in_processing[n] = 1
+        
+        for n in range(num_vertices):
+            i = in_processing.index(1)
+            neighbors1 = self.graph1[vertices[i]]
+            neighbors2 = self.graph2[mapping[i]]
+            shuffle(neighbors1)
+            shuffle(neighbors2)
+        
+            for nb1 in neighbors1:
+                ind = vertices.index(nb1)
+            
+                for nb2 in neighbors2:
+                    if mapping[ind] == None and nb2 not in mapping and nb2 in orbits[ind][1]:
+                        mapping[ind] = nb2
+                        in_processing[ind] = 1
+            
+            in_processing[i] = 0
+        
+        return [vertices,tuple(mapping)]
