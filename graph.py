@@ -508,23 +508,30 @@ class Graph:
         candidates = deg_groups_2.get(ref_deg, [])
 
         net1 = Graph.minimal_oneway_network(self.graph1, ref_vertex)
-        bdp1 = Graph.compute_bidirectional_degree_profiles(net1)
-        ld2_inv1, ld2_res1 = Graph.find_loops_and_dead_end_branches(net1)
-        ld3_1 = Graph.get_loops_and_dead_end_branches_intersections(
-            ld2_res1)
+        bdp1_fwd, bdp1_rev, rdm1 = Graph.compute_bidirectional_degree_profiles(net1)
+        bdp1 = (bdp1_fwd, bdp1_rev)
+
+        ld2_1 = None
+        ld3_1 = None
 
         for v2 in candidates:
             net2 = Graph.minimal_oneway_network(self.graph2, v2)
 
-            bdp2 = Graph.compute_bidirectional_degree_profiles(net2)
-            if bdp1 != bdp2:
+            bdp2_fwd, bdp2_rev, rdm2 = Graph.compute_bidirectional_degree_profiles(net2)
+            if bdp1 != (bdp2_fwd, bdp2_rev):
                 continue
 
+            if ld2_1 is None:
+                ld2_1 = Graph.find_loops_and_dead_end_branches(
+                    net1, layer_degree_map=rdm1)
             ld2_inv2, ld2_res2 = Graph.find_loops_and_dead_end_branches(
-                net2)
-            if ld2_inv1 != ld2_inv2:
+                net2, layer_degree_map=rdm2)
+            if ld2_1[0] != ld2_inv2:
                 continue
 
+            if ld3_1 is None:
+                ld3_1 = Graph.get_loops_and_dead_end_branches_intersections(
+                    ld2_1[1])
             ld3_2 = Graph.get_loops_and_dead_end_branches_intersections(
                 ld2_res2)
             if ld3_1 == ld3_2:
@@ -587,18 +594,21 @@ class Graph:
         vertices2 = list(self.graph2.keys())
 
         g2_bdp = {}
+        g2_rdm = {}
         g2_net = {}
         for v2 in vertices2:
             net2 = Graph.minimal_oneway_network(self.graph2, v2)
             g2_net[v2] = net2
-            g2_bdp[v2] = Graph.compute_bidirectional_degree_profiles(net2)
+            fwd, rev, rdm = Graph.compute_bidirectional_degree_profiles(net2)
+            g2_bdp[v2] = (fwd, rev)
+            g2_rdm[v2] = rdm
 
         g2_ld2 = {}
 
         def get_ld2(v2):
             if v2 not in g2_ld2:
                 g2_ld2[v2] = Graph.find_loops_and_dead_end_branches(
-                    g2_net[v2])
+                    g2_net[v2], layer_degree_map=g2_rdm[v2])
             return g2_ld2[v2]
 
         g2_ld3 = {}
@@ -615,9 +625,10 @@ class Graph:
         for v1 in vertices1:
 
             net1 = Graph.minimal_oneway_network(self.graph1, v1)
-            bdp1 = Graph.compute_bidirectional_degree_profiles(net1)
-            ld2_inv1, ld2_res1 = Graph.find_loops_and_dead_end_branches(
+            bdp1_fwd, bdp1_rev, rdm1 = Graph.compute_bidirectional_degree_profiles(
                 net1)
+            ld2_inv1, ld2_res1 = Graph.find_loops_and_dead_end_branches(
+                net1, layer_degree_map=rdm1)
             ld3_1 = Graph.get_loops_and_dead_end_branches_intersections(
                 ld2_res1)
 
@@ -630,7 +641,7 @@ class Graph:
                     continue
 
                 bdp2 = g2_bdp[v2]
-                if bdp1 != bdp2:
+                if (bdp1_fwd, bdp1_rev) != bdp2:
                     continue
 
                 ld2_inv2, ld2_res2 = get_ld2(v2)
@@ -662,5 +673,7 @@ class Graph:
 
         if not Graph._has_perfect_matching(orbits, vertices2):
             return None
+
+        return orbits
 
         return orbits
