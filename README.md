@@ -45,13 +45,13 @@ For sets with **12 or fewer edges** and **8 or fewer vertices**, no false positi
 |SRG(26,10,3,4)|45|0|1|14|0|0.0000%|
 |SRG(28,12,6,4)|6|0|0|6|0|0.0000%|
 |SRG(29,14,6,7)|820|no data|no data|no data|0|0.0000%|
-|SRG(35,16,6,8)|7 424 731|no data|—|
-|SRG(35,18,9,9)|25 651|no data|—|
-|SRG(36,14,4,6)|16 110|0|0.0000%|
-|SRG(36,15,6,6)|529 669 878|no data|—|
-|SRG(37,18,8,9) some|22 845 420|no data|—|
-|SRG(40,12,2,4)|378|0|0.0000%|
-|SRG(65,32,15,16) some|496|0|0.0000%|
+|SRG(35,16,6,8)|7 424 731|no data|no data|no data|no data|—|
+|SRG(35,18,9,9)|25 651|no data|no data|no data|no data|—|
+|SRG(36,14,4,6)|16 110|no data|no data|no data|0|0.0000%|
+|SRG(36,15,6,6)|529 669 878|no data|no data|no data|no data|—|
+|SRG(37,18,8,9) some|22 845 420|no data|no data|no data|no data|—|
+|SRG(40,12,2,4)|378|no data|no data|no data|0|0.0000%|
+|SRG(65,32,15,16) some|496|no data|no data|no data|0|0.0000%|
 
 # Graph Isomorphism
 
