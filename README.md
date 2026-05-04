@@ -18,15 +18,15 @@ For sets with **12 or fewer edges** and **8 or fewer vertices**, no false positi
 
 ## Graphs with a Fixed Number of Edges
 
-| File | Total pairs | False positives | % false positives |
-|------|-------------|----------------|-------------------|
-| ge9c.g6 | 6 055 | 0 | 0.0000% |
-| ge10c.g6 | 52 148 | 0 | 0.0000% |
-| ge11c.g6 | 498 917 | 0 | 0.0000% |
-| ge12c.g6 | 5 311 679 | 0 | 0.0000% |
-| ge13c.g6 | 62 412 197 | no data | — |
-| ge14c.g6 | 805 017 968 | no data | — |
-| ge15c.g6 | 11 326 565 644 | no data | — |
+| File | Total pairs | Inv1 | Inv2 | Inv3 |False positives | % false positives | 
+|------|-------------|----------------|-------------------|------|------|------|
+| ge9c.g6 | 6 055 | 6 028 | 27 | 0 | 0 | 0.0000% |
+| ge10c.g6 | 52 148 | 51 953 | 192 | 3 | 0 | 0.0000% |
+| ge11c.g6 | 498 917 | 497 864 | 1 216 | 27 | 0 | 0.0000% |
+| ge12c.g6 | 5 311 679 | 5 304 142 | 7 328 | 209 | 0 | 0.0000% |
+| ge13c.g6 | 62 412 197 |  |  |  | no data | — |
+| ge14c.g6 | 805 017 968 |  |  |  | no data | — |
+| ge15c.g6 | 11 326 565 644 |  |  |  | no data | — |
 
 ## Graphs with a Fixed Number of Vertices
 
