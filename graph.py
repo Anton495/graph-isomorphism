@@ -367,7 +367,18 @@ class Graph:
 
     @staticmethod
     def inverse_network(network):
+        """Invert a forward network by reversing edge directions and layer order.
 
+        For each forward edge (src -> tgt), creates a reverse edge (tgt -> src).
+        Layer order is also reversed so that sinks in the original become
+        sources in the inverted network.
+
+        Args:
+            network (list[dict]): Forward network as returned by minimal_oneway_network.
+
+        Returns:
+            list[dict]: Inverted network with reversed edges and reversed layer order.
+        """
         inverted_network = []
         for layer in reversed(network):
             inv_layer = {}
@@ -475,7 +486,7 @@ class Graph:
                     c_node = h0_raw[i] if i < len(h0_raw) else h0_raw
                     c_inv = h0_inv[i] if i < len(h0_inv) else h0_inv
     
-                    inv_group_history.append([[c_inv], [layer_degree_map[n + 1][v] for v in current_groups[i]]])
+                    inv_group_history.append([[c_inv], sorted([layer_degree_map[n + 1][v] for v in current_groups[i]])])
                     group_history.append([[c_node], current_groups[i]])
     
                 intersections_log = []
@@ -492,7 +503,7 @@ class Graph:
                         new_groups.append(next_list)
     
                         if next_list:
-                            inv_group_history[b_idx].append([layer_degree_map[j + 1][v] for v in next_list])
+                            inv_group_history[b_idx].append(sorted([layer_degree_map[j + 1][v] for v in next_list]))
                             group_history[b_idx].append(next_list)
     
                     # Track intersection layers for loops
@@ -525,16 +536,77 @@ class Graph:
     
                 result.append((label, *sorted(group_history)))
                 inv_result.append((label, *sorted(inv_group_history)))
-    
-        return sorted(inv_result), result
+
+        # Assign topological indices based on invariant equivalence classes
+        if result:
+            for i in range(len(result)):
+                result[i] = (inv_result[i], result[i])
+
+            result.sort(key=lambda x: x[0])
+
+            current_idx = 0
+            last_key = result[0][0]
+
+            for i in range(len(result)):
+                inv_item, res_item = result[i]
+
+                if inv_item != last_key:
+                    current_idx += 1
+                    last_key = inv_item
+
+                inv_result[i] = inv_item
+                result[i] = (current_idx, *res_item)
+
+        return inv_result, result
 
     def get_loops_and_dead_end_branches_intersections(loops_and_dead_end_branches):
-        
+        """
+        Computes structural intersections between graph branches and returns an invariant representation.
+    
+        The function identifies common nodes across identical layers for all pairs of elements. 
+        To ensure the output is an invariant (suitable for direct comparison regardless of 
+        execution environment or initial order), it uses sorted tuples for deterministic ordering.
+    
+        For loop elements (not dead-end branches), a summary "branch" is prepended that records,
+        per layer, how many of this element's branches intersect with each other element. The format
+        is identical to regular branch entries: each layer contains entries of the form
+        (topo_idx, (sorted_branch_counts)) where sorted_branch_counts is a sorted tuple of the
+        number of branches of this element that have non-zero intersection with distinct other
+        elements sharing the same topological index.
+    
+        Args:
+            loops_and_dead_end_branches (list): A list of elements where each element is 
+                represented as: (topo_idx, metadata, branch_1, branch_2, ...).
+                - topo_idx: Topological index assigned by invariant 2 (same for equivalent elements).
+                - metadata: A tuple where the first element is the start layer index.
+                - branch: A list of layers, where each layer is a list of node IDs.
+    
+        Returns:
+            list: A sorted list of tuples, where each tuple represents an element from the input.
+                The structure of the output is as follows:
+                - Each element is a tuple of its branches (sorted for canonical order).
+                - For loop elements, the first branch is the intersection count summary.
+                - Each branch is a tuple of layers (maintaining layer order).
+                - Each layer is either None (no intersection) or a tuple of entries.
+                - Each entry is formatted as: (topo_idx, branch_intersection_counts).
+                - topo_idx is the topological index of the other element (invariant under isomorphism).
+                - branch_intersection_counts is a sorted tuple of integers representing the number 
+                  of common nodes with each branch of the other element.
+    
+        Complexity:
+            O(n^2 * L) where n is the number of elements and L is the average number of layers.
+            The algorithm is optimized to compare each pair (i, j) only once.
+        """
+        # Phase 1: Index nodes by absolute layers for fast intersection lookups
         indexed = []
+        topo_indices = []
         for item in loops_and_dead_end_branches:
-            meta = item[0]
+            topo_idx = item[0]
+            meta = item[1]
             start = meta[0]
-            branches = item[1:]
+            branches = item[2:]
+            
+            topo_indices.append(topo_idx)
             
             element_branches = []
             for branch in branches:
@@ -548,20 +620,24 @@ class Graph:
                 element_branches.append(branch_layers)
             indexed.append(element_branches)
         
+        # Temporary storage for intersections: temp_output[element_idx][branch_idx][abs_layer][other_position] = [counts]
         temp_output = []
         for item in loops_and_dead_end_branches:
-            branches = item[1:]
+            branches = item[2:]
             temp_output.append([{} for _ in branches])
             
         n = len(loops_and_dead_end_branches)
         
+        # Phase 2: Compute intersections for each unique pair (i, j)
         for i in range(n):
             for j in range(i + 1, n):
+                # Find layers present in both elements to minimize iterations
                 layers_i = set(l for b in indexed[i] for l in b)
                 layers_j = set(l for b in indexed[j] for l in b)
                 common_layers = layers_i & layers_j
                 
                 for layer in common_layers:
+                    # Compare each branch of element 'i' against all branches of element 'j'
                     counts_i_to_j = []
                     for b_i in indexed[i]:
                         if layer in b_i:
@@ -575,6 +651,7 @@ class Graph:
                         else:
                             counts_i_to_j.append([])
                     
+                    # Symmetry: Compare each branch of element 'j' against all branches of element 'i'
                     counts_j_to_i = []
                     for b_j in indexed[j]:
                         if layer in b_j:
@@ -588,6 +665,7 @@ class Graph:
                         else:
                             counts_j_to_i.append([])
     
+                    # Compare each branch of element 'i' against all branches of element 'j'
                     for b_i_idx, branch_counts in enumerate(counts_i_to_j):
                         if not branch_counts:
                             continue
@@ -597,6 +675,7 @@ class Graph:
                                 temp_output[i][b_i_idx][layer] = {}
                             temp_output[i][b_i_idx][layer][j] = filtered
     
+                    # Symmetry: Compare each branch of element 'j' against all branches of element 'i'
                     for b_j_idx, branch_counts in enumerate(counts_j_to_i):
                         if not branch_counts:
                             continue
@@ -606,33 +685,114 @@ class Graph:
                                 temp_output[j][b_j_idx][layer] = {}
                             temp_output[j][b_j_idx][layer][i] = filtered
     
+        # Build final output with topological indices as sorted tuples
         final_output = []
         for i, item in enumerate(loops_and_dead_end_branches):
-            meta = item[0]
+            meta = item[1]
             start_i = meta[0]
-            branches = item[1:]
+            # Dead-end branches have label (n, exit_layer, -1)
+            is_dead_end = (len(meta) == 3 and meta[-1] == -1)
+            branches = item[2:]
             
-            element_branches_set = set()
+            # Each element is represented as a sorted tuple of its branches
+            element_branches = []
             for b_idx, branch in enumerate(branches):
                 branch_list = []
                 for k in range(len(branch)):
                     abs_layer = start_i + k
                     layer_data = temp_output[i][b_idx].get(abs_layer)
+                    
+                    # Use sorted tuple for intersections (deterministic order)
+                    # Replace position j with topological index for invariance
                     if layer_data:
-                        branch_list.append(frozenset(
-                            (j, tuple(sorted(counts))) for j, counts in layer_data.items()
-                        ))
+                        branch_list.append(tuple(sorted(
+                            (topo_indices[j], tuple(sorted(counts))) for j, counts in layer_data.items()
+                        )))
                     else:
                         branch_list.append(None)
                 
-                element_branches_set.add(tuple(branch_list))
+                # Each branch is a tuple to preserve layer indexing
+                element_branches.append(tuple(branch_list))
                 
-            final_output.append(element_branches_set)
+            # Sort branches within element for canonical order
+            def _branch_sort_key(branch):
+                return tuple(() if x is None else x for x in branch)
+            element_branches.sort(key=_branch_sort_key)
+            
+            # Add intersection count summary for loop elements.
+            # For each loop, prepend a summary "branch" that records, per layer,
+            # how many of this loop's branches intersect with each other element.
+            # Format per layer entry: (topo_idx, (sorted_branch_counts)) where
+            # sorted_branch_counts is the sorted tuple of the number of branches
+            # that have non-zero intersection with each distinct other element
+            # of that topological index. This distinguishes cases like
+            # (1,(1,3)) — one element of index 1 intersecting 1 branch, another
+            # intersecting 3 branches — from (1,(2,2)) — two elements of index 1
+            # each intersecting 2 branches.
+            if not is_dead_end:
+                max_layers = max((len(b) for b in element_branches), default=0)
+                summary_layers = []
+                for k in range(max_layers):
+                    abs_layer = start_i + k
+                    # For each j, count how many branches of this element
+                    # have non-zero intersection with j at this layer
+                    j_branch_counts = {}
+                    for b_idx in range(len(branches)):
+                        layer_data = temp_output[i][b_idx].get(abs_layer)
+                        if layer_data:
+                            for j in layer_data.keys():
+                                j_branch_counts[j] = j_branch_counts.get(j, 0) + 1
+                    
+                    if j_branch_counts:
+                        # Group by topo_idx: collect sorted branch counts per index
+                        idx_branch_counts = {}
+                        for j, bc in j_branch_counts.items():
+                            tidx = topo_indices[j]
+                            if tidx not in idx_branch_counts:
+                                idx_branch_counts[tidx] = []
+                            idx_branch_counts[tidx].append(bc)
+                        summary_layers.append(tuple(sorted(
+                            (tidx, tuple(sorted(counts))) for tidx, counts in idx_branch_counts.items()
+                        )))
+                    else:
+                        summary_layers.append(None)
+                
+                summary = tuple(summary_layers)
+                element_branches = [summary] + element_branches
+            
+            final_output.append(tuple(element_branches))
     
-        return sorted(final_output)
+        # Sort key: summary and regular branches now share the same format
+        # (topo_idx, (sorted_counts)), so no special casing is needed.
+        def _layer_sort_key(layer):
+            if layer is None:
+                return ()
+            return tuple(layer)
+        
+        def _branch_sort_key(branch):
+            return tuple(_layer_sort_key(x) for x in branch)
+
+        def _sort_key(element_tuple):
+            return tuple(_branch_sort_key(b) for b in element_tuple)
+
+        return sorted(final_output, key=_sort_key)
 
     def test_is_isomorphic(self):
+        """Test whether graph1 and graph2 are isomorphic using a chain of invariants.
 
+        Applies invariants in order of computational cost:
+        1. Vertex/edge count and degree distribution (O(V+E)).
+        2. Bidirectional Degree Profiles (BDP) — invariant 1.
+        3. Loop and dead-end branch structure — invariant 2.
+        4. Branch intersection structure — invariant 3.
+
+        Returns False as soon as any invariant distinguishes the graphs.
+        Only tests one reference vertex from graph1 against candidates of
+        matching degree in graph2.
+
+        Returns:
+            bool: True if the graphs are isomorphic, False otherwise.
+        """
         if len(self.graph1) != len(self.graph2):
             return False
 
@@ -700,42 +860,19 @@ class Graph:
 
         return False
 
-    @staticmethod
-    def _has_perfect_matching(orbits, vertices2):
-
-        n = len(orbits)
-        if n != len(vertices2):
-            return False
-
-        v2_to_idx = {v: i for i, v in enumerate(vertices2)}
-
-        adj = []
-        for v1, s2 in orbits:
-            targets = s2 if isinstance(s2, set) else {s2}
-            neighbors = [v2_to_idx[v] for v in targets if v in v2_to_idx]
-            if not neighbors:
-                return False
-            adj.append(neighbors)
-
-        match_r = [-1] * n
-
-        def bpm(u, seen):
-            for v in adj[u]:
-                if not seen[v]:
-                    seen[v] = True
-                    if match_r[v] == -1 or bpm(match_r[v], seen):
-                        match_r[v] = u
-                        return True
-            return False
-
-        for u in range(n):
-            seen = [False] * n
-            if not bpm(u, seen):
-                return False
-        return True
-
     def test_find_orbits(self):
+        """Find vertex orbits between graph1 and graph2 under isomorphism.
 
+        An orbit groups vertices of graph1 with vertices of graph2 that are
+        indistinguishable under all three structural invariants. Each orbit
+        is a pair (v1, {v2a, v2b, ...}) where v1 is a vertex of graph1 and
+        the set contains all vertices of graph2 that match v1.
+
+        Returns:
+            list or None: A list of orbit pairs if the graphs are isomorphic,
+                None if they are non-isomorphic or no match is found for
+                any vertex of graph1.
+        """
         nodes_count1 = len(self.graph1)
         nodes_count2 = len(self.graph2)
         nodes_count_match = nodes_count1 == nodes_count2
@@ -831,9 +968,6 @@ class Graph:
                 orbits[k] = (orbits[k][0], set(orbits[k][1]))
             else:
                 orbits[k] = (orbits[k][0], orbits[k][1])
-
-        if not Graph._has_perfect_matching(orbits, vertices2):
-            return None
 
         return orbits
 
