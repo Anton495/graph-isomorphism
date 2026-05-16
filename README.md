@@ -11,7 +11,7 @@ All graphs in a set are pairwise non-isomorphic. Before testing, graphs were gro
 **False positive pair** – a pair of graphs for which the algorithm incorrectly determines isomorphism on at least one pair of vertices. For each pair of graphs, all vertex pairs are checked.
 
 The table includes sets:
-- `ge*` – graphs with a fixed number of edges (8 to 13);
+- `ge*` – graphs with a fixed number of edges (8 to 15);
 - `graph*` – graphs with a fixed number of vertices (6 to 9).
 
 For sets with **12 or fewer edges** and **8 or fewer vertices**, no false positives were recorded.
@@ -44,14 +44,23 @@ For sets with **12 or fewer edges** and **8 or fewer vertices**, no false positi
 |SRG(25,12,5,6)|105|0|0|105|0|0.0000%|
 |SRG(26,10,3,4)|45|0|1|14|0|0.0000%|
 |SRG(28,12,6,4)|6|0|0|6|0|0.0000%|
-|SRG(29,14,6,7)|820|no data|no data|no data|0|0.0000%|
+|SRG(29,14,6,7)|820|0|0|819|1|0.1219%|
 |SRG(35,16,6,8)|7 424 731|no data|no data|no data|no data|—|
 |SRG(35,18,9,9)|25 651|no data|no data|no data|no data|—|
-|SRG(36,14,4,6)|16 110|no data|no data|no data|0|0.0000%|
+|SRG(36,14,4,6)|16 110|no data|no data|no data|no data|-|
 |SRG(36,15,6,6)|529 669 878|no data|no data|no data|no data|—|
 |SRG(37,18,8,9) some|22 845 420|no data|no data|no data|no data|—|
-|SRG(40,12,2,4)|378|no data|no data|no data|0|0.0000%|
-|SRG(65,32,15,16) some|496|no data|no data|no data|0|0.0000%|
+|SRG(40,12,2,4)|378|0|78|164|136|35.97%|
+|SRG(65,32,15,16) some|496|no data|no data|no data|no data|-|
+
+## CFI Graphs
+
+| Type | Total pairs | Inv1 | Inv2 | Inv3 | False positives | % false positives |
+|------|-------------|----------------|-------------------|------|------|------|
+|cfi-rigid-d3|92|no data|no data|no data|no data|-|
+|cfi-rigid-z3|92|no data|no data|no data|no data|-|
+|cfi-rigid-z2|188|no data|no data|no data|no data|-|
+|cfi-rigid-s2|252|no data|no data|no data|no data|-|
 
 # Graph Isomorphism
 
