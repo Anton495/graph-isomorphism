@@ -57,10 +57,10 @@ For sets with **12 or fewer edges** and **8 or fewer vertices**, no false positi
 
 | Type | Total pairs | Inv1 | Inv2 | Inv3 | False positives | % false positives |
 |------|-------------|----------------|-------------------|------|------|------|
-|cfi-rigid-d3|92|no data|no data|no data|no data|-|
-|cfi-rigid-z3|92|no data|no data|no data|no data|-|
-|cfi-rigid-z2|188|no data|no data|no data|no data|-|
-|cfi-rigid-s2|252|no data|no data|no data|no data|-|
+|cfi-rigid-d3-tar.gz|92|no data|no data|no data|no data|-|
+|cfi-rigid-z3-tar.gz|92|no data|no data|no data|no data|-|
+|cfi-rigid-z2-tar.gz|188|no data|no data|no data|no data|-|
+|cfi-rigid-s2-tar.gz|252|no data|no data|no data|no data|-|
 
 # Graph Isomorphism
 
