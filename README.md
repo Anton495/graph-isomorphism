@@ -47,20 +47,20 @@ For sets with **13 or fewer edges** and **8 or fewer vertices**, no false positi
 |SRG(29,14,6,7)|820|0|0|819|1|0.1219%|
 |SRG(35,16,6,8)|7 424 731|no data|no data|no data|no data|—|
 |SRG(35,18,9,9)|25 651|no data|no data|no data|no data|—|
-|SRG(36,14,4,6)|16 110|no data|no data|no data|no data|-|
+|SRG(36,14,4,6)|16 110|no data|no data|no data|no data|—|
 |SRG(36,15,6,6)|529 669 878|no data|no data|no data|no data|—|
 |SRG(37,18,8,9) some|22 845 420|no data|no data|no data|no data|—|
 |SRG(40,12,2,4)|378|0|78|164|136|35.97%|
-|SRG(65,32,15,16) some|496|no data|no data|no data|no data|-|
+|SRG(65,32,15,16) some|496|no data|no data|no data|no data|—|
 
 ## CFI Graphs
 
 | Type | Total pairs | Inv1 | Inv2 | Inv3 | False positives | % false positives |
 |------|-------------|----------------|-------------------|------|------|------|
-|cfi-rigid-d3-tar.gz|92|no data|no data|no data|no data|-|
-|cfi-rigid-z3-tar.gz|92|no data|no data|no data|no data|-|
-|cfi-rigid-z2-tar.gz|188|no data|no data|no data|no data|-|
-|cfi-rigid-s2-tar.gz|252|no data|no data|no data|no data|-|
+|cfi-rigid-d3-tar.gz|92|no data|no data|no data|no data|—|
+|cfi-rigid-z3-tar.gz|92|no data|no data|no data|no data|—|
+|cfi-rigid-z2-tar.gz|188|no data|no data|no data|no data|—|
+|cfi-rigid-s2-tar.gz|252|no data|no data|no data|no data|—|
 
 # Graph Isomorphism
 
