@@ -534,8 +534,10 @@ class Graph:
                         label_list.append(0)
                     label = tuple(label_list)
     
-                result.append((label, *sorted(group_history)))
-                inv_result.append((label, *sorted(inv_group_history)))
+                paired = list(zip(inv_group_history, group_history))
+                paired.sort(key=lambda x: x[0])
+                result.append((label, *[p[1] for p in paired]))
+                inv_result.append((label, *[p[0] for p in paired]))
 
         # Assign topological indices based on invariant equivalence classes
         if result:
@@ -556,6 +558,38 @@ class Graph:
 
                 inv_result[i] = inv_item
                 result[i] = (current_idx, *res_item)
+
+        # Assign global branch indices based on inv_result branch equivalence
+        branch_key_to_idx = {}
+        next_branch_idx = 0
+
+        for i in range(len(result)):
+            inv_item = inv_result[i]
+            inv_branches = inv_item[1:]  # Skip label
+
+            res_item = result[i]
+            topo_idx_val = res_item[0]
+            label = res_item[1]
+            branches = list(res_item[2:])
+
+            new_branches = []
+            for inv_branch, branch in zip(inv_branches, branches):
+                # Convert inv_branch to hashable key
+                # inv_branch is a list of steps, each step is a list of degree-lists
+                key = tuple(
+                    tuple(tuple(d) if isinstance(d, list) else (d,) for d in step)
+                    if isinstance(step, list) else (step,)
+                    for step in inv_branch
+                )
+
+                if key not in branch_key_to_idx:
+                    branch_key_to_idx[key] = next_branch_idx
+                    next_branch_idx += 1
+
+                b_global_idx = branch_key_to_idx[key]
+                new_branches.append((b_global_idx, branch))
+
+            result[i] = (topo_idx_val, label, *new_branches)
 
         return inv_result, result
 
@@ -600,16 +634,21 @@ class Graph:
         # Phase 1: Index nodes by absolute layers for fast intersection lookups
         indexed = []
         topo_indices = []
+        branch_indices_all = []  # NEW: branch global indices per element
         for item in loops_and_dead_end_branches:
             topo_idx = item[0]
             meta = item[1]
             start = meta[0]
-            branches = item[2:]
+            branches_raw = item[2:]  # Now (branch_idx, branch_data) pairs
             
             topo_indices.append(topo_idx)
             
+            branch_indices = []  # NEW
             element_branches = []
-            for branch in branches:
+            for branch_entry in branches_raw:
+                branch_idx, branch = branch_entry  # NEW: unpack
+                branch_indices.append(branch_idx)  # NEW
+                
                 branch_layers = {}
                 for i, layer_content in enumerate(branch):
                     abs_layer = i + start
@@ -618,13 +657,15 @@ class Graph:
                     else:
                         branch_layers[abs_layer] = {layer_content}
                 element_branches.append(branch_layers)
+            
+            branch_indices_all.append(branch_indices)  # NEW
             indexed.append(element_branches)
         
-        # Temporary storage for intersections: temp_output[element_idx][branch_idx][abs_layer][other_position] = [counts]
+        # Temporary storage for intersections: temp_output[element_idx][branch_idx][abs_layer][other_position] = [branch_ids]
         temp_output = []
         for item in loops_and_dead_end_branches:
-            branches = item[2:]
-            temp_output.append([{} for _ in branches])
+            branches_raw = item[2:]  # (branch_idx, branch_data) pairs
+            temp_output.append([{} for _ in branches_raw])
             
         n = len(loops_and_dead_end_branches)
         
@@ -669,21 +710,26 @@ class Graph:
                     for b_i_idx, branch_counts in enumerate(counts_i_to_j):
                         if not branch_counts:
                             continue
-                        filtered = sorted([c for c in branch_counts if c > 0])
-                        if filtered:
+                        # Store which branches of j (by global index) have non-zero intersection
+                        j_intersect_ids = sorted([
+                            branch_indices_all[j][b_j_idx] for b_j_idx, c in enumerate(branch_counts) if c > 0
+                        ])
+                        if j_intersect_ids:
                             if layer not in temp_output[i][b_i_idx]:
                                 temp_output[i][b_i_idx][layer] = {}
-                            temp_output[i][b_i_idx][layer][j] = filtered
+                            temp_output[i][b_i_idx][layer][j] = j_intersect_ids
     
                     # Symmetry: Compare each branch of element 'j' against all branches of element 'i'
                     for b_j_idx, branch_counts in enumerate(counts_j_to_i):
                         if not branch_counts:
                             continue
-                        filtered = sorted([c for c in branch_counts if c > 0])
-                        if filtered:
+                        i_intersect_ids = sorted([
+                            branch_indices_all[i][b_i_idx] for b_i_idx, c in enumerate(branch_counts) if c > 0
+                        ])
+                        if i_intersect_ids:
                             if layer not in temp_output[j][b_j_idx]:
                                 temp_output[j][b_j_idx][layer] = {}
-                            temp_output[j][b_j_idx][layer][i] = filtered
+                            temp_output[j][b_j_idx][layer][i] = i_intersect_ids
     
         # Build final output with topological indices as sorted tuples
         final_output = []
@@ -692,11 +738,12 @@ class Graph:
             start_i = meta[0]
             # Dead-end branches have label (n, exit_layer, -1)
             is_dead_end = (len(meta) == 3 and meta[-1] == -1)
-            branches = item[2:]
+            branches_raw = item[2:]  # (branch_idx, branch_data) pairs
             
             # Each element is represented as a sorted tuple of its branches
             element_branches = []
-            for b_idx, branch in enumerate(branches):
+            for b_idx, branch_entry in enumerate(branches_raw):
+                branch_idx, branch = branch_entry  # unpack
                 branch_list = []
                 for k in range(len(branch)):
                     abs_layer = start_i + k
@@ -706,7 +753,8 @@ class Graph:
                     # Replace position j with topological index for invariance
                     if layer_data:
                         branch_list.append(tuple(sorted(
-                            (topo_indices[j], tuple(sorted(counts))) for j, counts in layer_data.items()
+                            (topo_indices[j], tuple(sorted((bid,) for bid in branch_ids)))
+                            for j, branch_ids in layer_data.items()
                         )))
                     else:
                         branch_list.append(None)
@@ -721,38 +769,33 @@ class Graph:
             
             # Add intersection count summary for loop elements.
             # For each loop, prepend a summary "branch" that records, per layer,
-            # how many of this loop's branches intersect with each other element.
-            # Format per layer entry: (topo_idx, (sorted_branch_counts)) where
-            # sorted_branch_counts is the sorted tuple of the number of branches
-            # that have non-zero intersection with each distinct other element
-            # of that topological index. This distinguishes cases like
-            # (1,(1,3)) — one element of index 1 intersecting 1 branch, another
-            # intersecting 3 branches — from (1,(2,2)) — two elements of index 1
-            # each intersecting 2 branches.
+            # which of this element's branches (by global index) intersect with
+            # each other element.
             if not is_dead_end:
+                our_branch_indices = [branch_idx for branch_idx, _ in branches_raw]
                 max_layers = max((len(b) for b in element_branches), default=0)
                 summary_layers = []
                 for k in range(max_layers):
                     abs_layer = start_i + k
-                    # For each j, count how many branches of this element
-                    # have non-zero intersection with j at this layer
-                    j_branch_counts = {}
-                    for b_idx in range(len(branches)):
+                    # For each j, collect which of our branches (by global index) intersect
+                    j_branch_ids = {}
+                    for b_idx in range(len(branches_raw)):
                         layer_data = temp_output[i][b_idx].get(abs_layer)
                         if layer_data:
                             for j in layer_data.keys():
-                                j_branch_counts[j] = j_branch_counts.get(j, 0) + 1
+                                if j not in j_branch_ids:
+                                    j_branch_ids[j] = []
+                                j_branch_ids[j].append(our_branch_indices[b_idx])
                     
-                    if j_branch_counts:
-                        # Group by topo_idx: collect sorted branch counts per index
-                        idx_branch_counts = {}
-                        for j, bc in j_branch_counts.items():
+                    if j_branch_ids:
+                        idx_branch_ids = {}
+                        for j, bids in j_branch_ids.items():
                             tidx = topo_indices[j]
-                            if tidx not in idx_branch_counts:
-                                idx_branch_counts[tidx] = []
-                            idx_branch_counts[tidx].append(bc)
+                            if tidx not in idx_branch_ids:
+                                idx_branch_ids[tidx] = []
+                            idx_branch_ids[tidx].append(tuple(sorted(bids)))
                         summary_layers.append(tuple(sorted(
-                            (tidx, tuple(sorted(counts))) for tidx, counts in idx_branch_counts.items()
+                            (tidx, tuple(sorted(id_tuples))) for tidx, id_tuples in idx_branch_ids.items()
                         )))
                     else:
                         summary_layers.append(None)
@@ -763,7 +806,7 @@ class Graph:
             final_output.append(tuple(element_branches))
     
         # Sort key: summary and regular branches now share the same format
-        # (topo_idx, (sorted_counts)), so no special casing is needed.
+        # (topo_idx, ((bid,), ...)), so no special casing is needed.
         def _layer_sort_key(layer):
             if layer is None:
                 return ()
