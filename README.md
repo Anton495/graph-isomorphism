@@ -35,7 +35,7 @@ For sets with **13 or fewer edges** and **8 or fewer vertices**, no false positi
 | graph6c.g6 | 75 | 75 | 0 | 0 | 0 | 0.0000% |
 | graph7c.g6 | 3 038 | 3 024 | 14 | 10 | 0 | 0.0000% |
 | graph8c.g6 | 293 364 | 291 901 | 1 031 | 432 | 0 | 0.0000% |
-| graph9c.g6 | 90 277 837 | 90 165 001 | 83 401 | 29 409 | 26 | 0.00002% |
+| graph9c.g6 | 90 277 837 | 90 165 001 | 83 401 | 29 435 | 0 | 0.0000% |
 
 ## Strongly Regular Graphs
 
@@ -44,7 +44,7 @@ For sets with **13 or fewer edges** and **8 or fewer vertices**, no false positi
 |SRG(25,12,5,6)|105|0|0|105|0|0.0000%|
 |SRG(26,10,3,4)|45|0|1|14|0|0.0000%|
 |SRG(28,12,6,4)|6|0|0|6|0|0.0000%|
-|SRG(29,14,6,7)|820|0|0|819|1|0.1219%|
+|SRG(29,14,6,7)|820|0|0|820|0|0.1219%|
 |SRG(35,16,6,8)|7 424 731|no data|no data|no data|no data|—|
 |SRG(35,18,9,9)|25 651|no data|no data|no data|no data|—|
 |SRG(36,14,4,6)|16 110|no data|no data|no data|no data|—|
