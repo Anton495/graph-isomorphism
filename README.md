@@ -44,7 +44,7 @@ For sets with **13 or fewer edges** and **8 or fewer vertices**, no false positi
 |SRG(25,12,5,6)|105|0|0|105|0|0.0000%|
 |SRG(26,10,3,4)|45|0|1|14|0|0.0000%|
 |SRG(28,12,6,4)|6|0|0|6|0|0.0000%|
-|SRG(29,14,6,7)|820|0|0|820|0|0000%|
+|SRG(29,14,6,7)|820|0|0|820|0|0.0000%|
 |SRG(35,16,6,8)|7 424 731|no data|no data|no data|no data|—|
 |SRG(35,18,9,9)|25 651|no data|no data|no data|no data|—|
 |SRG(36,14,4,6)|16 110|no data|no data|no data|no data|—|
