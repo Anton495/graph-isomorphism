@@ -717,7 +717,7 @@ class Graph:
                         if j_intersect_ids:
                             if layer not in temp_output[i][b_i_idx]:
                                 temp_output[i][b_i_idx][layer] = {}
-                            temp_output[i][b_i_idx][layer][j] = j_intersect_ids
+                            temp_output[i][b_i_idx][layer][j] = (branch_indices_all[i][b_i_idx], j_intersect_ids)
     
                     # Symmetry: Compare each branch of element 'j' against all branches of element 'i'
                     for b_j_idx, branch_counts in enumerate(counts_j_to_i):
@@ -729,7 +729,7 @@ class Graph:
                         if i_intersect_ids:
                             if layer not in temp_output[j][b_j_idx]:
                                 temp_output[j][b_j_idx][layer] = {}
-                            temp_output[j][b_j_idx][layer][i] = i_intersect_ids
+                            temp_output[j][b_j_idx][layer][i] = (branch_indices_all[j][b_j_idx], i_intersect_ids)
     
         # Build final output with topological indices as sorted tuples
         final_output = []
@@ -753,8 +753,8 @@ class Graph:
                     # Replace position j with topological index for invariance
                     if layer_data:
                         branch_list.append(tuple(sorted(
-                            (topo_indices[j], tuple(sorted((bid,) for bid in branch_ids)))
-                            for j, branch_ids in layer_data.items()
+                            (topo_indices[j], (((our_bid, tuple(sorted(j_intersect_ids))),),))
+                            for j, (our_bid, j_intersect_ids) in layer_data.items()
                         )))
                     else:
                         branch_list.append(None)
@@ -777,25 +777,25 @@ class Graph:
                 summary_layers = []
                 for k in range(max_layers):
                     abs_layer = start_i + k
-                    # For each j, collect which of our branches (by global index) intersect
-                    j_branch_ids = {}
+                    # For each j, collect (our_bid, their_bids) pairs
+                    j_branch_details = {}
                     for b_idx in range(len(branches_raw)):
                         layer_data = temp_output[i][b_idx].get(abs_layer)
                         if layer_data:
-                            for j in layer_data.keys():
-                                if j not in j_branch_ids:
-                                    j_branch_ids[j] = []
-                                j_branch_ids[j].append(our_branch_indices[b_idx])
+                            for j, (our_bid, j_ids) in layer_data.items():
+                                if j not in j_branch_details:
+                                    j_branch_details[j] = []
+                                j_branch_details[j].append((our_bid, tuple(sorted(j_ids))))
                     
-                    if j_branch_ids:
-                        idx_branch_ids = {}
-                        for j, bids in j_branch_ids.items():
+                    if j_branch_details:
+                        idx_branch_details = {}
+                        for j, details in j_branch_details.items():
                             tidx = topo_indices[j]
-                            if tidx not in idx_branch_ids:
-                                idx_branch_ids[tidx] = []
-                            idx_branch_ids[tidx].append(tuple(sorted(bids)))
+                            if tidx not in idx_branch_details:
+                                idx_branch_details[tidx] = []
+                            idx_branch_details[tidx].append(tuple(sorted(details)))
                         summary_layers.append(tuple(sorted(
-                            (tidx, tuple(sorted(id_tuples))) for tidx, id_tuples in idx_branch_ids.items()
+                            (tidx, tuple(sorted(detail_tuples))) for tidx, detail_tuples in idx_branch_details.items()
                         )))
                     else:
                         summary_layers.append(None)
@@ -806,7 +806,7 @@ class Graph:
             final_output.append(tuple(element_branches))
     
         # Sort key: summary and regular branches now share the same format
-        # (topo_idx, ((bid,), ...)), so no special casing is needed.
+        # (topo_idx, ((our_bid, (their_bids...)), ...)), so no special casing is needed.
         def _layer_sort_key(layer):
             if layer is None:
                 return ()
