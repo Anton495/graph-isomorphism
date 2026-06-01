@@ -53,6 +53,8 @@ For sets with **13 or fewer edges** and **8 or fewer vertices**, no false positi
 |SRG(40,12,2,4)|378|0|78|164|136|35.97%|
 |SRG(65,32,15,16) some|496|no data|no data|no data|no data|—|
 
+For false positive pairs of graphs from the group SRG(40,12,2,4), the probability of obtaining a false positive result varies from 2.5% to 25%.
+
 ## CFI Graphs
 
 | Type | Total pairs | Inv1 | Inv2 | Inv3 | False positives | % false positives |
