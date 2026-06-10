@@ -660,7 +660,29 @@ class Graph:
             
             branch_indices_all.append(branch_indices)  # NEW
             indexed.append(element_branches)
-        
+    
+        # Compute vertex weights and ref_layer
+        element_vertex_weights = []
+        ref_layer = -1
+        for i, item in enumerate(loops_and_dead_end_branches):
+            meta = item[1]
+            start = meta[0]
+            branches_raw = item[2:]
+            layer_vertex_counts = {}
+            for branch_entry in branches_raw:
+                branch_idx, branch = branch_entry
+                last_layer = start + len(branch) - 1
+                if last_layer > ref_layer:
+                    ref_layer = last_layer
+                for k, layer_content in enumerate(branch):
+                    abs_layer = start + k
+                    if abs_layer not in layer_vertex_counts:
+                        layer_vertex_counts[abs_layer] = {}
+                    v_set = set(layer_content) if isinstance(layer_content, (list, tuple, set)) else {layer_content}
+                    for v in v_set:
+                        layer_vertex_counts[abs_layer][v] = layer_vertex_counts[abs_layer].get(v, 0) + 1
+            element_vertex_weights.append(layer_vertex_counts)
+    
         # Temporary storage for intersections: temp_output[element_idx][branch_idx][abs_layer][other_position] = [branch_ids]
         temp_output = []
         for item in loops_and_dead_end_branches:
@@ -678,41 +700,64 @@ class Graph:
                 common_layers = layers_i & layers_j
                 
                 for layer in common_layers:
+                    # Skip the reference vertex layer — no discriminative power
+                    if layer == ref_layer:
+                        continue
+                    
                     # Compare each branch of element 'i' against all branches of element 'j'
-                    counts_i_to_j = []
+                    weights_i_to_j = []
                     for b_i in indexed[i]:
                         if layer in b_i:
                             row = []
                             for b_j in indexed[j]:
                                 if layer in b_j:
-                                    row.append(len(b_i[layer] & b_j[layer]))
+                                    common = b_i[layer] & b_j[layer]
+                                    if common:
+                                        wt = tuple(sorted(
+                                            (element_vertex_weights[i][layer][v],
+                                             element_vertex_weights[j][layer][v])
+                                            for v in common
+                                        ))
+                                        row.append(wt)
+                                    else:
+                                        row.append(())
                                 else:
-                                    row.append(0)
-                            counts_i_to_j.append(row)
+                                    row.append(())
+                            weights_i_to_j.append(row)
                         else:
-                            counts_i_to_j.append([])
+                            weights_i_to_j.append([])
                     
                     # Symmetry: Compare each branch of element 'j' against all branches of element 'i'
-                    counts_j_to_i = []
+                    weights_j_to_i = []
                     for b_j in indexed[j]:
                         if layer in b_j:
                             row = []
                             for b_i in indexed[i]:
                                 if layer in b_i:
-                                    row.append(len(b_j[layer] & b_i[layer]))
+                                    common = b_j[layer] & b_i[layer]
+                                    if common:
+                                        wt = tuple(sorted(
+                                            (element_vertex_weights[j][layer][v],
+                                             element_vertex_weights[i][layer][v])
+                                            for v in common
+                                        ))
+                                        row.append(wt)
+                                    else:
+                                        row.append(())
                                 else:
-                                    row.append(0)
-                            counts_j_to_i.append(row)
+                                    row.append(())
+                            weights_j_to_i.append(row)
                         else:
-                            counts_j_to_i.append([])
+                            weights_j_to_i.append([])
     
                     # Compare each branch of element 'i' against all branches of element 'j'
-                    for b_i_idx, branch_counts in enumerate(counts_i_to_j):
-                        if not branch_counts:
+                    for b_i_idx, branch_weights in enumerate(weights_i_to_j):
+                        if not branch_weights:
                             continue
                         # Store which branches of j (by global index) have non-zero intersection
+                        # Format: (branch_id, sorted_weight_tuples) — sorted by branch_id
                         j_intersect_ids = sorted([
-                            branch_indices_all[j][b_j_idx] for b_j_idx, c in enumerate(branch_counts) if c > 0
+                            (branch_indices_all[j][b_j_idx], wt) for b_j_idx, wt in enumerate(branch_weights) if wt
                         ])
                         if j_intersect_ids:
                             if layer not in temp_output[i][b_i_idx]:
@@ -720,18 +765,18 @@ class Graph:
                             temp_output[i][b_i_idx][layer][j] = (branch_indices_all[i][b_i_idx], j_intersect_ids)
     
                     # Symmetry: Compare each branch of element 'j' against all branches of element 'i'
-                    for b_j_idx, branch_counts in enumerate(counts_j_to_i):
-                        if not branch_counts:
+                    for b_j_idx, branch_weights in enumerate(weights_j_to_i):
+                        if not branch_weights:
                             continue
                         i_intersect_ids = sorted([
-                            branch_indices_all[i][b_i_idx] for b_i_idx, c in enumerate(branch_counts) if c > 0
+                            (branch_indices_all[i][b_i_idx], wt) for b_i_idx, wt in enumerate(branch_weights) if wt
                         ])
                         if i_intersect_ids:
                             if layer not in temp_output[j][b_j_idx]:
                                 temp_output[j][b_j_idx][layer] = {}
                             temp_output[j][b_j_idx][layer][i] = (branch_indices_all[j][b_j_idx], i_intersect_ids)
     
-        # Build final output with topological indices as sorted tuples
+        # Build final output — ONLY summary (index 0), no per-branch data
         final_output = []
         for i, item in enumerate(loops_and_dead_end_branches):
             meta = item[1]
@@ -740,44 +785,12 @@ class Graph:
             is_dead_end = (len(meta) == 3 and meta[-1] == -1)
             branches_raw = item[2:]  # (branch_idx, branch_data) pairs
             
-            # Each element is represented as a sorted tuple of its branches
-            element_branches = []
-            for b_idx, branch_entry in enumerate(branches_raw):
-                branch_idx, branch = branch_entry  # unpack
-                branch_list = []
-                for k in range(len(branch)):
-                    abs_layer = start_i + k
-                    layer_data = temp_output[i][b_idx].get(abs_layer)
-                    
-                    # Use sorted tuple for intersections (deterministic order)
-                    # Replace position j with topological index for invariance
-                    if layer_data:
-                        branch_list.append(tuple(sorted(
-                            (topo_indices[j], (((our_bid, tuple(sorted(j_intersect_ids))),),))
-                            for j, (our_bid, j_intersect_ids) in layer_data.items()
-                        )))
-                    else:
-                        branch_list.append(None)
-                
-                # Each branch is a tuple to preserve layer indexing
-                element_branches.append(tuple(branch_list))
-                
-            # Sort branches within element for canonical order
-            def _branch_sort_key(branch):
-                return tuple(() if x is None else x for x in branch)
-            element_branches.sort(key=_branch_sort_key)
-            
-            # Add intersection count summary for loop elements.
-            # For each loop, prepend a summary "branch" that records, per layer,
-            # which of this element's branches (by global index) intersect with
-            # each other element.
             if not is_dead_end:
-                our_branch_indices = [branch_idx for branch_idx, _ in branches_raw]
-                max_layers = max((len(b) for b in element_branches), default=0)
+                # Build intersection count summary for loop elements only
+                max_layers = max((len(branch) for _, branch in branches_raw), default=0)
                 summary_layers = []
                 for k in range(max_layers):
                     abs_layer = start_i + k
-                    # For each j, collect (our_bid, their_bids) pairs
                     j_branch_details = {}
                     for b_idx in range(len(branches_raw)):
                         layer_data = temp_output[i][b_idx].get(abs_layer)
@@ -785,7 +798,7 @@ class Graph:
                             for j, (our_bid, j_ids) in layer_data.items():
                                 if j not in j_branch_details:
                                     j_branch_details[j] = []
-                                j_branch_details[j].append((our_bid, tuple(sorted(j_ids))))
+                                j_branch_details[j].append((our_bid, tuple(j_ids)))
                     
                     if j_branch_details:
                         idx_branch_details = {}
@@ -801,22 +814,16 @@ class Graph:
                         summary_layers.append(None)
                 
                 summary = tuple(summary_layers)
-                element_branches = [summary] + element_branches
-            
-            final_output.append(tuple(element_branches))
+                final_output.append(summary)
+            else:
+                # Dead-end elements — output empty tuple
+                final_output.append(())
     
-        # Sort key: summary and regular branches now share the same format
-        # (topo_idx, ((our_bid, (their_bids...)), ...)), so no special casing is needed.
-        def _layer_sort_key(layer):
-            if layer is None:
+        # Sort: None < tuple for canonical ordering
+        def _sort_key(element):
+            if element == ():
                 return ()
-            return tuple(layer)
-        
-        def _branch_sort_key(branch):
-            return tuple(_layer_sort_key(x) for x in branch)
-
-        def _sort_key(element_tuple):
-            return tuple(_branch_sort_key(b) for b in element_tuple)
+            return tuple(() if x is None else x for x in element)
 
         return sorted(final_output, key=_sort_key)
 
@@ -878,26 +885,50 @@ class Graph:
         ld2_1 = None
         ld3_1 = None
 
+        # Precompute BDP for all g2 candidates and cache inv2/inv3
+        g2_bdp = {}
+        g2_net = {}
+        g2_rdm = {}
         for v2 in candidates:
             net2 = Graph.minimal_oneway_network(self.graph2, v2)
+            g2_net[v2] = net2
+            fwd2, rev2, rdm2 = Graph.compute_bidirectional_degree_profiles(net2)
+            g2_bdp[v2] = (fwd2, rev2)
+            g2_rdm[v2] = rdm2
 
-            bdp2_fwd, bdp2_rev, rdm2 = Graph.compute_bidirectional_degree_profiles(net2)
-            if bdp1 != (bdp2_fwd, bdp2_rev):
+        g2_ld2 = {}
+
+        def get_ld2(v2):
+            if v2 not in g2_ld2:
+                g2_ld2[v2] = Graph.find_loops_and_dead_end_branches(
+                    g2_net[v2], layer_degree_map=g2_rdm[v2])
+            return g2_ld2[v2]
+
+        g2_ld3 = {}
+
+        def get_ld3(v2):
+            if v2 not in g2_ld3:
+                _, ld2_res2 = get_ld2(v2)
+                g2_ld3[v2] = Graph.get_loops_and_dead_end_branches_intersections(
+                    ld2_res2)
+            return g2_ld3[v2]
+
+        for v2 in candidates:
+            bdp2 = g2_bdp[v2]
+            if bdp1 != bdp2:
                 continue
 
             if ld2_1 is None:
                 ld2_1 = Graph.find_loops_and_dead_end_branches(
                     net1, layer_degree_map=rdm1)
-            ld2_inv2, ld2_res2 = Graph.find_loops_and_dead_end_branches(
-                net2, layer_degree_map=rdm2)
+            ld2_inv2, _ = get_ld2(v2)
             if ld2_1[0] != ld2_inv2:
                 continue
 
             if ld3_1 is None:
                 ld3_1 = Graph.get_loops_and_dead_end_branches_intersections(
                     ld2_1[1])
-            ld3_2 = Graph.get_loops_and_dead_end_branches_intersections(
-                ld2_res2)
+            ld3_2 = get_ld3(v2)
             if ld3_1 == ld3_2:
                 return True
 
@@ -968,10 +999,13 @@ class Graph:
             net1 = Graph.minimal_oneway_network(self.graph1, v1)
             bdp1_fwd, bdp1_rev, rdm1 = Graph.compute_bidirectional_degree_profiles(
                 net1)
-            ld2_inv1, ld2_res1 = Graph.find_loops_and_dead_end_branches(
-                net1, layer_degree_map=rdm1)
-            ld3_1 = Graph.get_loops_and_dead_end_branches_intersections(
-                ld2_res1)
+
+            # Lazy computation of invariant 2 for g1 vertex
+            ld2_inv1 = None
+            ld2_res1 = None
+
+            # Lazy computation of invariant 3 for g1 vertex
+            ld3_1 = None
 
             d1 = len(self.graph1[v1])
             v1_matched = False
@@ -985,10 +1019,16 @@ class Graph:
                 if (bdp1_fwd, bdp1_rev) != bdp2:
                     continue
 
+                if ld2_inv1 is None:
+                    ld2_inv1, ld2_res1 = Graph.find_loops_and_dead_end_branches(
+                        net1, layer_degree_map=rdm1)
                 ld2_inv2, ld2_res2 = get_ld2(v2)
                 if ld2_inv1 != ld2_inv2:
                     continue
 
+                if ld3_1 is None:
+                    ld3_1 = Graph.get_loops_and_dead_end_branches_intersections(
+                        ld2_res1)
                 ld3_2 = get_ld3(v2)
                 if ld3_1 == ld3_2:
 
