@@ -1,4 +1,4 @@
-⚠️ Coming soon: a major update with architecture improvements and a fast Python + Numba (CSR + njit) version for large graphs, along with large‑scale algorithm testing.
+⚠️ The third invariant has not been fully optimized. Its hierarchical structure is planned for revision in the future.
 
 # Isomorphism Testing Results for Connected Graphs
 
